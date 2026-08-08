@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { LESSONS } from "@/data/lessons";
 
 export type WrongItem = {
   id: string;
@@ -13,15 +14,18 @@ export type WrongItem = {
 };
 
 type ProgressState = {
+  visited: string[];
   completed: string[];
+  mastered: string[];
   quizScores: Record<string, number>;
   bookmarks: string[];
   notes: Record<string, string>;
   wrongBook: WrongItem[];
-  /** YYYY-MM-DD check-in dates */
   checkIns: string[];
   streak: number;
+  markVisited: (slug: string) => void;
   markComplete: (slug: string) => void;
+  markMastered: (slug: string) => void;
   setQuizScore: (slug: string, score: number) => void;
   toggleBookmark: (slug: string) => void;
   setNote: (slug: string, text: string) => void;
@@ -34,19 +38,7 @@ type ProgressState = {
 
 function todayKey() {
   const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
-
-function yesterdayKey() {
-  const d = new Date();
-  d.setDate(d.getDate() - 1);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 function computeStreak(checkIns: string[]): number {
@@ -54,15 +46,9 @@ function computeStreak(checkIns: string[]): number {
   const set = new Set(checkIns);
   let streak = 0;
   const cursor = new Date();
-  // If not checked in today, start from yesterday (streak still valid until end of day)
-  if (!set.has(todayKey())) {
-    cursor.setDate(cursor.getDate() - 1);
-  }
+  if (!set.has(todayKey())) cursor.setDate(cursor.getDate() - 1);
   for (;;) {
-    const y = cursor.getFullYear();
-    const m = String(cursor.getMonth() + 1).padStart(2, "0");
-    const day = String(cursor.getDate()).padStart(2, "0");
-    const key = `${y}-${m}-${day}`;
+    const key = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, "0")}-${String(cursor.getDate()).padStart(2, "0")}`;
     if (!set.has(key)) break;
     streak += 1;
     cursor.setDate(cursor.getDate() - 1);
@@ -70,36 +56,43 @@ function computeStreak(checkIns: string[]): number {
   return streak;
 }
 
+function uniqPush(list: string[], slug: string) {
+  return list.includes(slug) ? list : [...list, slug];
+}
+
 export const useProgress = create<ProgressState>()(
   persist(
     (set, get) => ({
+      visited: [],
       completed: [],
+      mastered: [],
       quizScores: {},
       bookmarks: [],
       notes: {},
       wrongBook: [],
       checkIns: [],
       streak: 0,
+      markVisited: (slug) => set((s) => ({ visited: uniqPush(s.visited, slug) })),
       markComplete: (slug) =>
-        set((s) =>
-          s.completed.includes(slug)
-            ? s
-            : { completed: [...s.completed, slug] },
-        ),
-      setQuizScore: (slug, score) =>
         set((s) => ({
-          quizScores: { ...s.quizScores, [slug]: score },
+          visited: uniqPush(s.visited, slug),
+          completed: uniqPush(s.completed, slug),
         })),
+      markMastered: (slug) =>
+        set((s) => ({
+          visited: uniqPush(s.visited, slug),
+          completed: uniqPush(s.completed, slug),
+          mastered: uniqPush(s.mastered, slug),
+        })),
+      setQuizScore: (slug, score) =>
+        set((s) => ({ quizScores: { ...s.quizScores, [slug]: score } })),
       toggleBookmark: (slug) =>
         set((s) => ({
           bookmarks: s.bookmarks.includes(slug)
             ? s.bookmarks.filter((b) => b !== slug)
             : [...s.bookmarks, slug],
         })),
-      setNote: (slug, text) =>
-        set((s) => ({
-          notes: { ...s.notes, [slug]: text },
-        })),
+      setNote: (slug, text) => set((s) => ({ notes: { ...s.notes, [slug]: text } })),
       addWrong: (item) =>
         set((s) => {
           const filtered = s.wrongBook.filter((w) => w.id !== item.id);
@@ -108,9 +101,7 @@ export const useProgress = create<ProgressState>()(
           };
         }),
       clearWrong: (id) =>
-        set((s) => ({
-          wrongBook: s.wrongBook.filter((w) => w.id !== id),
-        })),
+        set((s) => ({ wrongBook: s.wrongBook.filter((w) => w.id !== id) })),
       clearAllWrong: () => set({ wrongBook: [] }),
       checkInToday: () => {
         const key = todayKey();
@@ -121,11 +112,12 @@ export const useProgress = create<ProgressState>()(
         }
         const next = [...checkIns, key];
         set({ checkIns: next, streak: computeStreak(next) });
-        void yesterdayKey;
       },
       reset: () =>
         set({
+          visited: [],
           completed: [],
+          mastered: [],
           quizScores: {},
           bookmarks: [],
           notes: {},
@@ -135,12 +127,15 @@ export const useProgress = create<ProgressState>()(
         }),
     }),
     {
-      name: "angular-learn-progress-v1",
-      version: 2,
+      name: "angular-learn-progress-v3",
+      version: 3,
       migrate: (persisted) => {
         const p = (persisted ?? {}) as Partial<ProgressState>;
+        const completed = p.completed ?? [];
         return {
-          completed: p.completed ?? [],
+          visited: p.visited ?? completed,
+          completed,
+          mastered: p.mastered ?? [],
           quizScores: p.quizScores ?? {},
           bookmarks: p.bookmarks ?? [],
           notes: p.notes ?? {},
@@ -154,3 +149,11 @@ export const useProgress = create<ProgressState>()(
 );
 
 export { todayKey, computeStreak };
+
+export function isCertificateReady(mastered: string[], completed?: string[]) {
+  if (mastered.length > 0) {
+    return LESSONS.every((l) => mastered.includes(l.slug));
+  }
+  if (completed) return LESSONS.every((l) => completed.includes(l.slug));
+  return false;
+}
