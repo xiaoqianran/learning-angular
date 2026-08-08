@@ -1,0 +1,3676 @@
+# learning-angular — Full curriculum context
+
+> 供 LLM / IDE 一次拉取的完整课程正文。索引见 llms.txt。
+> 站点：https://xiaoqianran.github.io/learning-angular
+> 生成时间：2026-08-08T09:22:41.493Z
+> 课程数：75
+
+## How to use
+
+1. 将本文件作为 context 附件，生成现代 Angular 代码（Standalone + Signals）。
+2. 权威 API 以 https://angular.dev 为准。
+3. 本站强调中文讲解、Demo 逻辑、测验与全栈工坊心智。
+
+---
+
+# Track: 基础
+
+## Angular 是什么
+
+- slug: `intro`
+- level: 入门
+- minutes: 6
+- url: https://xiaoqianran.github.io/learning-angular/lesson/intro
+- summary: 平台级框架、组件与信号。
+
+### Angular 是什么
+
+Angular 是 Google 维护的全功能前端框架：组件 + 依赖注入 + 路由 + 表单 + HttpClient 一站式。现代 Angular 推荐 Standalone 组件与 Signals 响应式。
+
+学习方法：先看「对应源码」，再点 Demo 验证 — 源码里的 count 就是 Demo 里跳动的数字。
+
+
+### 对应源码 · 计数器 · Signals
+
+```typescript
+import { Component, signal } from '@angular/core';
+
+@Component({
+  selector: 'app-counter',
+  standalone: true,
+  template: `
+    <p>点了 {{ count() }} 次</p>
+    <button (click)="inc()">count++</button>
+    <button (click)="count.set(0)">重置</button>
+  `,
+})
+export class CounterComponent {
+  count = signal(0);
+  inc() { this.count.update(c => c + 1); }
+}
+```
+
+
+**交互 Demo：** 动手：计数器（kind: `counter`）
+
+
+> **提示：** 和 Vue 对比：Vue 是渐进式库可逐步引入；Angular 是完整平台（CLI/DI/Router/Forms 开箱）。两者都能做大型应用，团队栈决定选型。
+
+
+**测验：**
+- Q: Angular 定位？
+  - [ ] 仅视图库
+  - [✓] 全功能应用框架
+  - [ ] 仅 CSS 工具
+  - [ ] 数据库
+  - 解析: 组件/DI/路由/表单一体。
+- Q: 现代 Angular 推荐？
+  - [ ] 仅 NgModule
+  - [✓] Standalone + Signals
+  - [ ] 仅 jQuery
+  - [ ] 仅 Options API
+  - 解析: Standalone 与 Signals。
+
+
+---
+
+## 模板语法
+
+- slug: `template`
+- level: 入门
+- minutes: 8
+- url: https://xiaoqianran.github.io/learning-angular/lesson/template
+- summary: 插值、属性与事件绑定。
+
+### 模板语法
+
+模板用 {{ }} 插值；[prop] 绑属性；(event) 绑事件；[(ngModel)] 双向绑定（需 FormsModule）。[innerHTML] 会插入原始 HTML，注意 XSS。
+
+改 Demo 左侧数据，右侧立刻反映绑定结果。
+
+
+### 对应源码 · 模板插值与绑定
+
+```typescript
+import { Component, signal } from '@angular/core';
+
+@Component({
+  selector: 'app-tpl',
+  standalone: true,
+  template: `
+    <p>{{ msg() }}</p>
+    <p [class.active]="isActive()">
+      [class] 绑定 → {{ isActive() ? 'active' : 'inactive' }}
+    </p>
+  `,
+})
+export class TplComponent {
+  msg = signal('你好，Angular');
+  isActive = signal(true);
+}
+```
+
+
+**交互 Demo：** 动手：模板（kind: `template`）
+
+
+> **提示：** 记忆口诀：方括号绑属性 [x]，圆括号绑事件 (x)，香蕉盒双向 [(x)]。
+
+
+**测验：**
+- Q: 属性绑定写法？
+  - [✓] [attr]
+  - [ ] @attr
+  - [ ] #attr
+  - [ ] .attr
+  - 解析: [title]="x"
+- Q: innerHTML 风险？
+  - [ ] 慢
+  - [✓] XSS
+  - [ ] 移除
+  - [ ] 仅数字
+  - 解析: XSS。
+
+
+---
+
+## 响应式：Signals
+
+- slug: `reactivity`
+- level: 入门
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/reactivity
+- summary: signal / model / linkedSignal。
+
+### Signals 响应式
+
+signal() 创建可写信号，读用 count()，写用 set/update。模板里自动追踪依赖。复杂对象可放 signal 里整表替换，或用 mutable 模式配合 markForCheck。
+
+对照 Demo：左边点 count++，右边改对象字段。
+
+
+### 对应源码 · signal
+
+```typescript
+import { Component, signal } from '@angular/core';
+
+@Component({
+  standalone: true,
+  selector: 'app-sig',
+  template: `
+    <p>{{ count() }}</p>
+    <button (click)="count.update(c => c + 1)">++</button>
+    <p>{{ state().name }} / {{ state().n }}</p>
+    <button (click)="bump()">n++</button>
+  `,
+})
+export class SigComponent {
+  count = signal(0);
+  state = signal({ name: 'Angular', n: 1 });
+  bump() {
+    this.state.update(s => ({ ...s, n: s.n + 1 }));
+  }
+}
+```
+
+
+**交互 Demo：** 动手：Signals（kind: `ref-vs-reactive`）
+
+
+> **提示：** 对象更新务必不可变：state.update(s => ({...s, n: s.n+1}))，便于 OnPush 与调试。
+
+
+**测验：**
+- Q: 读 signal？
+  - [ ] count
+  - [✓] count()
+  - [ ] count.value
+  - [ ] val
+  - 解析: 函数调用 count()。
+- Q: 更新 signal？
+  - [ ] 仅赋值
+  - [✓] set / update
+  - [ ] 只能模板改
+  - [ ] 用 $
+  - 解析: set 或 update。
+
+
+---
+
+## 计算属性与 effect
+
+- slug: `computed`
+- level: 入门
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/computed
+- summary: computed / effect。
+
+### computed 与 effect
+
+computed() 是有缓存的派生信号，依赖不变不重算。effect() 做副作用（日志、同步）。不要在 computed 里发请求。
+
+
+### 对应源码 · computed + effect
+
+```typescript
+import { Component, signal, computed, effect } from '@angular/core';
+
+@Component({
+  standalone: true,
+  selector: 'app-comp',
+  template: `
+    <input [value]="first()" (input)="first.set($any($event.target).value)" />
+    <input [value]="last()" (input)="last.set($any($event.target).value)" />
+    <p>{{ full() }}</p>
+  `,
+})
+export class CompComponent {
+  first = signal('Ada');
+  last = signal('Lovelace');
+  full = computed(() => `${this.first()} ${this.last()}`);
+  constructor() {
+    effect(() => console.log('effect →', this.full()));
+  }
+}
+```
+
+
+**交互 Demo：** 动手：computed（kind: `computed`）
+
+
+> **提示：** effect 在构造期创建时注意：仅用于同步副作用；HTTP 请求更适合显式方法 + 订阅清理。
+
+
+**测验：**
+- Q: computed？
+  - [ ] 无缓存
+  - [✓] 有缓存派生
+  - [ ] 仅 HTTP
+  - [ ] 无返回
+  - 解析: 有缓存。
+- Q: 副作用用？
+  - [ ] computed
+  - [✓] effect
+  - [ ] selector
+  - [ ] pipe
+  - 解析: effect。
+
+
+---
+
+## 条件与列表渲染
+
+- slug: `list-render`
+- level: 入门
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/list-render
+- summary: @if / @for / track。
+
+### @if 与 @for
+
+Angular 控制流：@if / @else、@for (item of items; track item.id)。track 必须稳定，优先业务 id 而非 index。
+
+
+### 对应源码 · @if @for
+
+```typescript
+import { Component, signal } from '@angular/core';
+
+@Component({
+  standalone: true,
+  selector: 'app-list',
+  template: `
+    @if (show()) {
+      <ul>
+        @for (item of items(); track item.id) {
+          <li>{{ item.text }}</li>
+        }
+      </ul>
+    } @else {
+      <p>已隐藏</p>
+    }
+  `,
+})
+export class ListComponent {
+  show = signal(true);
+  items = signal([
+    { id: 1, text: '学 signal' },
+    { id: 2, text: '学 @for' },
+  ]);
+}
+```
+
+
+**交互 Demo：** 动手：列表（kind: `list`）
+
+
+> **提示：** @for 的 track 决定 diff 身份；动画/状态挂在错误 key 上会出现「输入框串值」。
+
+
+**测验：**
+- Q: 列表 track 优先？
+  - [ ] index
+  - [✓] 稳定业务 id
+  - [ ] 随机
+  - [ ] 不要 track
+  - 解析: 稳定 id。
+- Q: 条件渲染？
+  - [✓] @if
+  - [ ] v-if
+  - [ ] *ngIf only 强制
+  - [ ] css only
+  - 解析: @if 控制流。
+
+
+---
+
+## 事件处理
+
+- slug: `events`
+- level: 入门
+- minutes: 8
+- url: https://xiaoqianran.github.io/learning-angular/lesson/events
+- summary: (click) 与 $event。
+
+### 事件绑定
+
+用 (event)="handler($event)"。可写模板语句或调用组件方法。修饰可用 .preventDefault() 等在方法里处理。
+
+
+### 对应源码 · 事件
+
+```typescript
+import { Component, signal } from '@angular/core';
+
+@Component({
+  standalone: true,
+  selector: 'app-evt',
+  template: `
+    <button (click)="onClick($event)">点我</button>
+    <p>上次：{{ last() }}</p>
+  `,
+})
+export class EvtComponent {
+  last = signal('-');
+  onClick(e: MouseEvent) {
+    this.last.set(`x=${e.clientX}`);
+  }
+}
+```
+
+
+**交互 Demo：** 动手：事件（kind: `events`）
+
+
+**测验：**
+- Q: 事件绑定？
+  - [✓] (click)
+  - [ ] @click
+  - [ ] on-click
+  - [ ] v-on
+  - 解析: (click)。
+- Q: 拿到原生事件？
+  - [✓] $event
+  - [ ] event()
+  - [ ] this.e
+  - [ ] args
+  - 解析: $event。
+
+
+---
+
+## 表单与 ngModel
+
+- slug: `forms`
+- level: 入门
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/forms
+- summary: 模板驱动表单入门。
+
+### 模板驱动表单
+
+引入 FormsModule 后可用 [(ngModel)] 双向绑定。适合简单表单；复杂校验更推荐 Reactive Forms。
+
+
+### 对应源码 · ngModel
+
+```typescript
+import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+
+@Component({
+  standalone: true,
+  imports: [FormsModule],
+  selector: 'app-form',
+  template: `
+    <input [(ngModel)]="name" name="name" />
+    <p>你好，{{ name }}</p>
+  `,
+})
+export class FormComponent {
+  name = 'Angular';
+}
+```
+
+
+**交互 Demo：** 动手：表单（kind: `form`）
+
+
+**测验：**
+- Q: 双向绑定？
+  - [✓] [(ngModel)]
+  - [ ] [ngModel]
+  - [ ] (ngModel)
+  - [ ] v-model
+  - 解析: 香蕉盒语法。
+- Q: ngModel 需要？
+  - [✓] FormsModule
+  - [ ] HttpClient
+  - [ ] Router
+  - [ ] 无
+  - 解析: FormsModule。
+
+
+---
+
+## 组件基础
+
+- slug: `components`
+- level: 入门
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/components
+- summary: Standalone 组件与选择器。
+
+### 组件
+
+Angular 一切 UI 都是组件：@Component 装饰器 + 类。Standalone 组件在 imports 里声明依赖，无需 NgModule。
+
+
+### 对应源码 · 父子组件
+
+```typescript
+import { Component } from '@angular/core';
+import { ChildComponent } from './child';
+
+@Component({
+  standalone: true,
+  imports: [ChildComponent],
+  selector: 'app-root',
+  template: `<app-child title="你好" />`,
+})
+export class AppComponent {}
+```
+
+
+**交互 Demo：** 动手：组件（kind: `component`）
+
+
+**测验：**
+- Q: 组件装饰器？
+  - [✓] @Component
+  - [ ] @View
+  - [ ] @Page
+  - [ ] @Widget
+  - 解析: @Component。
+- Q: Standalone 依赖写在？
+  - [✓] imports
+  - [ ] providers only
+  - [ ] styles
+  - [ ] index.html
+  - 解析: imports 数组。
+
+
+---
+
+## Input 与 Output
+
+- slug: `props-emits`
+- level: 入门
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/props-emits
+- summary: input() / output()。
+
+### 输入与输出
+
+父→子用 input()（或 @Input），子→父用 output()（或 @Output EventEmitter）。现代 API 更简洁且类型友好。
+
+
+### 对应源码 · input/output
+
+```typescript
+import { Component, input, output } from '@angular/core';
+
+@Component({
+  standalone: true,
+  selector: 'app-card',
+  template: `
+    <h3>{{ title() }}</h3>
+    <button (click)="closed.emit()">关闭</button>
+  `,
+})
+export class CardComponent {
+  title = input.required<string>();
+  closed = output<void>();
+}
+```
+
+
+**交互 Demo：** 动手：输入输出（kind: `component`）
+
+
+**测验：**
+- Q: 父传子？
+  - [✓] input()
+  - [ ] output()
+  - [ ] inject()
+  - [ ] pipe
+  - 解析: input。
+- Q: 子通知父？
+  - [✓] output()
+  - [ ] input()
+  - [ ] signal only
+  - [ ] window
+  - 解析: output emit。
+
+
+---
+
+## 生命周期
+
+- slug: `lifecycle`
+- level: 入门
+- minutes: 8
+- url: https://xiaoqianran.github.io/learning-angular/lesson/lifecycle
+- summary: ngOnInit / destroy 钩子。
+
+### 生命周期
+
+常用：constructor → ngOnInit → ngOnChanges → ngAfterViewInit → ngOnDestroy。订阅要在 destroy 时取消。也可用 DestroyRef + takeUntilDestroyed。
+
+
+### 对应源码 · 生命周期
+
+```typescript
+import { Component, OnInit, OnDestroy } from '@angular/core';
+
+@Component({ standalone: true, selector: 'app-life', template: `...` })
+export class LifeComponent implements OnInit, OnDestroy {
+  ngOnInit() { console.log('init'); }
+  ngOnDestroy() { console.log('destroy'); }
+}
+```
+
+
+**交互 Demo：** 动手：生命周期（kind: `lifecycle`）
+
+
+**测验：**
+- Q: 首次数据初始化？
+  - [✓] ngOnInit
+  - [ ] constructor only
+  - [ ] ngOnDestroy
+  - [ ] pipe
+  - 解析: ngOnInit。
+- Q: 清理订阅？
+  - [✓] ngOnDestroy
+  - [ ] ngOnInit
+  - [ ] 不用清
+  - [ ] HTML
+  - 解析: destroy。
+
+
+---
+
+## 组合逻辑实践
+
+- slug: `composition`
+- level: 入门
+- minutes: 12
+- url: https://xiaoqianran.github.io/learning-angular/lesson/composition
+- summary: 服务、inject、可复用逻辑。
+
+### 组合逻辑
+
+把可复用状态/方法抽成 injectable 服务或纯函数。组件保持薄：模板 + 协调。用 inject() 替代冗长 constructor 注入。
+
+
+### 对应源码 · inject 服务
+
+```typescript
+import { Injectable, inject, signal } from '@angular/core';
+
+@Injectable({ providedIn: 'root' })
+export class CounterStore {
+  count = signal(0);
+  inc() { this.count.update(c => c + 1); }
+}
+
+// 组件内
+// private store = inject(CounterStore);
+```
+
+
+**交互 Demo：** 动手：Todo 小应用（kind: `todo`）
+
+
+**测验：**
+- Q: 全局单例服务？
+  - [✓] providedIn: root
+  - [ ] 每个组件 new
+  - [ ] window
+  - [ ] CSS
+  - 解析: root 单例。
+- Q: 现代注入？
+  - [✓] inject()
+  - [ ] 仅 Reflect
+  - [ ] 全局变量
+  - [ ] require
+  - 解析: inject()。
+
+
+---
+
+## 安装与 Angular CLI
+
+- slug: `install-cli`
+- level: 入门
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/install-cli
+- summary: ng new、工作区结构与本地开发。
+
+### 官方安装路径
+
+需要 Node LTS。创建项目：
+npx @angular/cli@latest new my-app
+cd my-app && ng serve
+
+CLI 负责脚手架、生成组件、构建、测试与更新。生产构建：ng build。
+
+
+### 对应源码 · 常用 CLI
+
+```bash
+ng new learning-app --defaults
+ng generate component features/hello --standalone
+ng generate service core/api
+ng serve --port 4200
+ng build --configuration production
+ng update @angular/core @angular/cli
+```
+
+
+> **提示：** 官方文档：angular.dev/installation 与 angular.dev/tools/cli。本站侧重「概念 + 动手」，CLI 细节以官网为准。
+
+
+**测验：**
+- Q: 创建项目？
+  - [✓] ng new
+  - [ ] ng init
+  - [ ] npm create-angular
+  - [ ] angular create
+  - 解析: ng new。
+- Q: 生成组件？
+  - [✓] ng generate component
+  - [ ] ng add component
+  - [ ] ng make
+  - [ ] ng scaffold
+  - 解析: ng g c 亦可。
+
+
+---
+
+## 选择器与样式封装
+
+- slug: `selectors-styling`
+- level: 入门
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/selectors-styling
+- summary: selector 约定与 ViewEncapsulation。
+
+### 选择器
+
+组件常用元素选择器 app-user-card；指令常用属性选择器 [appHighlight]。加应用前缀避免冲突。:not、组合选择器可用于精细匹配。
+
+
+### 样式封装
+
+默认 ViewEncapsulation.Emulated：样式只作用于组件模板。ShadowDom 用原生 shadow root；None 则全局泄漏。优先 Emulated；第三方全局样式放 styles.css。
+
+
+### 对应源码 · 封装模式
+
+```typescript
+@Component({
+  selector: 'app-badge',
+  standalone: true,
+  encapsulation: ViewEncapsulation.Emulated, // 默认
+  styles: [`:host { display: inline-flex; } .dot { color: #dd0031; }`],
+  template: `<span class="dot">●</span><ng-content />`,
+})
+export class BadgeComponent {}
+```
+
+
+**交互 Demo：** 动手：封装对比（kind: `style-encap`）
+
+
+**测验：**
+- Q: 默认封装？
+  - [✓] Emulated
+  - [ ] None
+  - [ ] ShadowDom 强制
+  - [ ] 无封装
+  - 解析: Emulated。
+- Q: 指令选择器常见？
+  - [✓] [appX]
+  - [ ] app-x 元素强制
+  - [ ] #id
+  - [ ] .class only
+  - 解析: 属性选择器。
+
+
+---
+
+## 管道 Pipes
+
+- slug: `pipes`
+- level: 入门
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/pipes
+- summary: 纯变换与自定义管道。
+
+### 管道
+
+模板中用 | 变换显示值：date、currency、json、async… 自定义管道实现 PipeTransform。纯管道可缓存；默认 pure: true。复杂逻辑优先在组件/ computed 完成。
+
+
+### 对应源码 · 自定义管道
+
+```typescript
+@Pipe({ name: 'truncate', standalone: true })
+export class TruncatePipe implements PipeTransform {
+  transform(value: string, max = 12): string {
+    return value.length <= max ? value : value.slice(0, max) + '…';
+  }
+}
+// 模板：{{ title | truncate:20 }}
+```
+
+
+**交互 Demo：** 动手：管道变换（kind: `pipe`）
+
+
+**测验：**
+- Q: 管道语法？
+  - [✓] value | pipe
+  - [ ] pipe(value)
+  - [ ] {{pipe value}}
+  - [ ] #pipe
+  - 解析: | 管道。
+- Q: 实现接口？
+  - [✓] PipeTransform
+  - [ ] OnInit
+  - [ ] CanActivate
+  - [ ] HttpInterceptor
+  - 解析: transform 方法。
+
+
+---
+
+## 模板引用变量
+
+- slug: `template-refs`
+- level: 入门
+- minutes: 8
+- url: https://xiaoqianran.github.io/learning-angular/lesson/template-refs
+- summary: #ref 与查询配合。
+
+### Template refs
+
+#name 在模板声明引用，可指向 DOM 或子组件。用于聚焦、读取子组件 API。配合 viewChild 在类中访问。
+
+
+### 对应源码 · #ref
+
+```typescript
+<input #email type="email" />
+<button (click)="email.focus()">聚焦邮箱</button>
+<app-player #player />
+<button (click)="player().play()">播放</button>
+```
+
+
+**交互 Demo：** 动手：模板引用（kind: `query`）
+
+
+**测验：**
+- Q: 模板引用语法？
+  - [✓] #name
+  - [ ] @name
+  - [ ] $name
+  - [ ] .name
+  - 解析: #ref。
+- Q: 类中访问？
+  - [✓] viewChild
+  - [ ] document 必须
+  - [ ] eval
+  - [ ] cookie
+  - 解析: 查询 API。
+
+
+---
+
+## 模板表达式语法
+
+- slug: `expression-syntax`
+- level: 入门
+- minutes: 8
+- url: https://xiaoqianran.github.io/learning-angular/lesson/expression-syntax
+- summary: 允许的运算符与限制。
+
+### Expression syntax
+
+模板表达式是受限 JS：支持字面量、属性读写、调用、管道、安全导航 ?. 与非空断言。不支持赋值、new、增量语句等副作用语法（事件语句略宽）。复杂逻辑放组件方法或 computed。
+
+
+### 对应源码 · 表达式
+
+```typescript
+{{ user?.name || '访客' }}
+{{ items[0]?.price * qty() }}
+<button [disabled]="!form.valid || saving()">提交</button>
+```
+
+
+> **提示：** 官网：templates/expression-syntax。保持模板纯：无重计算、无隐藏副作用。
+
+
+**测验：**
+- Q: 安全导航？
+  - [✓] ?.
+  - [ ] ??.
+  - [ ] !!
+  - [ ] try
+  - 解析: ?. 
+- Q: 复杂逻辑放哪？
+  - [✓] 组件/computed
+  - [ ] 模板连环三元
+  - [ ] eval
+  - [ ] HTML 注释
+  - 解析: 保持薄模板。
+
+
+---
+
+# Track: 进阶
+
+## Angular Router
+
+- slug: `router`
+- level: 进阶
+- minutes: 12
+- url: https://xiaoqianran.github.io/learning-angular/lesson/router
+- summary: 路由表、参数与导航。
+
+### 路由
+
+provideRouter(routes) 配置路由。RouterLink / RouterOutlet 渲染。ActivatedRoute 读参数，Router 编程式导航。
+
+
+### 对应源码 · 路由
+
+```typescript
+import { Routes } from '@angular/router';
+
+export const routes: Routes = [
+  { path: '', component: HomeComponent },
+  { path: 'lesson/:slug', component: LessonComponent },
+  { path: '**', redirectTo: '' },
+];
+```
+
+
+**交互 Demo：** 动手：路由（kind: `router`）
+
+
+> **提示：** 懒加载：loadComponent / loadChildren 按路由拆包，首屏更轻。
+
+
+**测验：**
+- Q: 渲染出口？
+  - [✓] router-outlet
+  - [ ] router-view
+  - [ ] ng-content
+  - [ ] slot
+  - 解析: router-outlet。
+- Q: 声明式链接？
+  - [✓] routerLink
+  - [ ] href only
+  - [ ] a-href
+  - [ ] navigate-to
+  - 解析: routerLink。
+
+
+---
+
+## 状态管理
+
+- slug: `pinia`
+- level: 进阶
+- minutes: 12
+- url: https://xiaoqianran.github.io/learning-angular/lesson/pinia
+- summary: 服务 + Signals / NgRx 心智。
+
+### 状态管理
+
+多数应用用 root 服务 + signals 即可。复杂领域可上 NgRx / ComponentStore。原则：单一数据源、不可变更新、组件只读状态。
+
+
+### 对应源码 · Signal Store
+
+```typescript
+import { Injectable, signal, computed } from '@angular/core';
+
+@Injectable({ providedIn: 'root' })
+export class CartStore {
+  private items = signal<{ id: string; qty: number }[]>([]);
+  totalQty = computed(() => this.items().reduce((a, i) => a + i.qty, 0));
+  add(id: string) {
+    this.items.update(list => [...list, { id, qty: 1 }]);
+  }
+}
+```
+
+
+**交互 Demo：** 动手：全局状态（kind: `pinia`）
+
+
+> **提示：** 简单全局状态用 root 服务 + signal 即可；跨功能复杂工作流再考虑 NgRx。
+
+
+**测验：**
+- Q: 简单全局状态？
+  - [✓] root 服务 + signal
+  - [ ] 必须 NgRx
+  - [ ] localStorage only
+  - [ ] CSS 变量
+  - 解析: 服务足够。
+- Q: 派生数量？
+  - [✓] computed
+  - [ ] setInterval
+  - [ ] DOM 数
+  - [ ] output
+  - 解析: computed。
+
+
+---
+
+## 常见坑与性能
+
+- slug: `pitfalls`
+- level: 进阶
+- minutes: 12
+- url: https://xiaoqianran.github.io/learning-angular/lesson/pitfalls
+- summary: 变更检测、异步管道、内存泄漏。
+
+### 常见坑
+
+1) 订阅未取消导致泄漏 2) 模板里重函数调用触发多余 CD 3) 可变对象原地改却期望 OnPush 更新 4) track 用 index 导致错位。优先 OnPush + signals。
+
+
+### 对应源码 · OnPush + async
+
+```typescript
+import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
+import { of } from 'rxjs';
+
+@Component({
+  standalone: true,
+  imports: [AsyncPipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `<p>{{ data$ | async }}</p>`,
+})
+export class SafeComponent {
+  data$ = of('ok');
+}
+```
+
+
+**交互 Demo：** 动手：找茬挑战（kind: `challenge`）
+
+
+**测验：**
+- Q: 订阅清理？
+  - [✓] takeUntilDestroyed / destroy
+  - [ ] 永不
+  - [ ] 只 console
+  - [ ] HTML
+  - 解析: 必须清理。
+- Q: OnPush 更新靠？
+  - [✓] 输入引用变化 / signal / async
+  - [ ] 任意 this.x=1 必然
+  - [ ] setInterval
+  - [ ] CSS
+  - 解析: 不可变 + 信号。
+
+
+---
+
+## 从零搭一个小项目
+
+- slug: `project`
+- level: 进阶
+- minutes: 14
+- url: https://xiaoqianran.github.io/learning-angular/lesson/project
+- summary: CLI 脚手架与目录。
+
+### 脚手架
+
+npx @angular/cli new my-app --standalone。目录：app/ 组件、routes、services。用 environments 管理配置。先跑通列表页再加鉴权。
+
+
+### 对应源码 · 最小路由应用
+
+```typescript
+// app.routes.ts
+export const routes = [
+  { path: '', loadComponent: () => import('./home').then(m => m.HomeComponent) },
+  { path: 'todos', loadComponent: () => import('./todos').then(m => m.TodosComponent) },
+];
+```
+
+
+**交互 Demo：** 动手：项目雏形 Todo（kind: `todo`）
+
+
+**测验：**
+- Q: 官方脚手架？
+  - [✓] Angular CLI
+  - [ ] create-react-app
+  - [ ] vue create
+  - [ ] rails
+  - 解析: ng new。
+- Q: 懒加载组件？
+  - [✓] loadComponent
+  - [ ] require sync
+  - [ ] script 标签
+  - [ ] iframe
+  - 解析: loadComponent。
+
+
+---
+
+## model() 双向输入
+
+- slug: `model-inputs`
+- level: 进阶
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/model-inputs
+- summary: 可写 input，简化双向绑定。
+
+### model input
+
+model() 创建可写信号型输入，父模板可用 [(value)] 双向绑定。适合可编辑状态；只读数据仍用 input()。
+
+
+### 对应源码 · model
+
+```typescript
+@Component({
+  standalone: true,
+  selector: 'app-toggle',
+  template: `<button (click)="on.set(!on())">{{ on() ? 'ON' : 'OFF' }}</button>`,
+})
+export class ToggleComponent {
+  on = model(false);
+}
+
+// 父级：
+// <app-toggle [(on)]="enabled" />
+```
+
+
+**交互 Demo：** 动手：model 双向（kind: `model-input`）
+
+
+**测验：**
+- Q: 双向输入 API？
+  - [✓] model()
+  - [ ] input.only
+  - [ ] output.twoWay
+  - [ ] ngModel 强制
+  - 解析: model()。
+- Q: 只读数据？
+  - [✓] input()
+  - [ ] model 必须
+  - [ ] signal 全局
+  - [ ] window
+  - 解析: input 只读。
+
+
+---
+
+## 模板变量 @let
+
+- slug: `template-let`
+- level: 进阶
+- minutes: 8
+- url: https://xiaoqianran.github.io/learning-angular/lesson/template-let
+- summary: 模板内声明局部变量。
+
+### @let
+
+@let name = expr; 在模板声明局部变量，避免重复写长表达式。不提升到父级；作用域与控制流块相关。也可配合 signal：@let v = count()。
+
+
+### 对应源码 · @let
+
+```html
+@let full = first() + ' ' + last();
+<p>{{ full }}</p>
+
+@if (user(); as u) {
+  @let label = u.name + ' · ' + u.role;
+  <p>{{ label }}</p>
+}
+```
+
+
+> **提示：** 官网 Templates → Variables。复杂派生仍优先放 computed，模板保持薄。
+
+
+**测验：**
+- Q: 模板声明局部变量？
+  - [✓] @let
+  - [ ] var
+  - [ ] const 在 html
+  - [ ] let-
+  - 解析: @let。
+- Q: @let 是否提升到父级？
+  - [✓] 否
+  - [ ] 是全局
+  - [ ] 仅 SSR
+  - [ ] 仅模块模式
+  - 解析: 不提升。
+
+
+---
+
+## RxJS 与 Signals 互通
+
+- slug: `rxjs-interop`
+- level: 进阶
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/rxjs-interop
+- summary: toSignal / toObservable。
+
+### 互通原则
+
+UI 局部状态优先 signal；多事件流、组合、取消用 RxJS。toSignal(obs$) 进入信号世界；toObservable(sig) 进入流世界。outputToObservable 等见 rxjs-interop 包。
+
+
+### 对应源码 · toSignal
+
+```typescript
+import { toSignal, toObservable } from '@angular/core/rxjs-interop';
+
+id$ = this.route.paramMap.pipe(map(p => p.get('id')!));
+id = toSignal(this.id$, { initialValue: '' });
+
+idChanges$ = toObservable(this.id);
+```
+
+
+> **提示：** 官网：angular.dev/ecosystem/rxjs-interop。不要在模板里订阅 Observable 却忘记 async 管道或 toSignal。
+
+
+**测验：**
+- Q: Observable → Signal？
+  - [✓] toSignal
+  - [ ] toObservable
+  - [ ] async only 强制
+  - [ ] JSON.parse
+  - 解析: toSignal。
+- Q: Signal → Observable？
+  - [✓] toObservable
+  - [ ] toSignal
+  - [ ] fromEvent only
+  - [ ] zone.run
+  - 解析: toObservable。
+
+
+---
+
+## 结构型指令
+
+- slug: `structural-directives`
+- level: 进阶
+- minutes: 12
+- url: https://xiaoqianran.github.io/learning-angular/lesson/structural-directives
+- summary: 自定义 * 语法与微语法。
+
+### 结构型指令
+
+结构型指令改变 DOM 结构（添加/移除元素）。现代模板优先 @if/@for；理解 *ngIf 微语法与自定义结构指令仍有助于读旧代码与库。一元素通常只能有一个结构指令。
+
+
+### 对应源码 · 自定义结构指令思路
+
+```typescript
+@Directive({
+  selector: '[appUnless]',
+  standalone: true,
+})
+export class UnlessDirective {
+  private tpl = inject(TemplateRef);
+  private vcr = inject(ViewContainerRef);
+  private hasView = false;
+
+  @Input() set appUnless(condition: boolean) {
+    if (!condition && !this.hasView) {
+      this.vcr.createEmbeddedView(this.tpl);
+      this.hasView = true;
+    } else if (condition && this.hasView) {
+      this.vcr.clear();
+      this.hasView = false;
+    }
+  }
+}
+// 使用：<p *appUnless="hidden">可见</p>
+```
+
+
+**交互 Demo：** 动手：结构指令开关（kind: `structural`）
+
+
+> **提示：** 官网：guide/directives/structural-directives。新代码优先内置控制流 @if/@for/@switch。
+
+
+**测验：**
+- Q: 结构指令主要做什么？
+  - [✓] 改 DOM 结构
+  - [ ] 只改颜色
+  - [ ] 发 HTTP
+  - [ ] 打包
+  - 解析: 增删 DOM。
+- Q: 现代优先？
+  - [✓] @if/@for
+  - [ ] 必须自定义 *
+  - [ ] jQuery
+  - [ ] innerHTML
+  - 解析: 控制流块。
+
+
+---
+
+## 视图查询 viewChild
+
+- slug: `queries`
+- level: 进阶
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/queries
+- summary: 查询子组件与模板引用。
+
+### Queries
+
+viewChild/viewChildren 查询模板中的组件、指令或模板引用；contentChild 查询投影内容。信号版 query API 更贴合现代写法。
+
+
+### 对应源码 · viewChild
+
+```typescript
+@Component({
+  standalone: true,
+  template: `
+    <input #box />
+    <app-child />
+    <button (click)="focus()">聚焦</button>
+  `,
+})
+export class HostComponent {
+  box = viewChild.required<ElementRef>('box');
+  child = viewChild(ChildComponent);
+  focus() { this.box().nativeElement.focus(); }
+}
+```
+
+
+**交互 Demo：** 动手：查询子元素（kind: `query`）
+
+
+> **提示：** 少用直接操作 DOM；优先输入输出与信号状态。查询在 afterNextRender / 视图稳定后更安全。
+
+
+**测验：**
+- Q: 查模板子节点？
+  - [✓] viewChild
+  - [ ] HttpClient
+  - [ ] Router only
+  - [ ] pipe
+  - 解析: viewChild。
+- Q: 查投影内容？
+  - [✓] contentChild
+  - [ ] viewChild 相同
+  - [ ] document.query
+  - [ ] css
+  - 解析: contentChild。
+
+
+---
+
+## 注入上下文
+
+- slug: `injection-context`
+- level: 进阶
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/injection-context
+- summary: inject() 能在哪里调用。
+
+### Injection context
+
+inject() 只能在注入上下文中调用：构造期字段初始化、工厂函数、某些框架回调。异步回调/事件处理里直接 inject 会报错，需提前注入保存引用。
+
+
+### 对应源码 · 正误对比
+
+```typescript
+export class CartComponent {
+  private store = inject(CartStore); // OK：字段初始化
+
+  onClick() {
+    // inject(CartStore); // 错误：不在注入上下文
+    this.store.add('sku');
+  }
+}
+```
+
+
+> **提示：** 官网：dependency-injection-context。runInInjectionContext 用于特殊桥接，勿滥用。
+
+
+**测验：**
+- Q: inject 字段初始化？
+  - [✓] 可以
+  - [ ] 永远不行
+  - [ ] 仅 SSR
+  - [ ] 仅测试
+  - 解析: 构造上下文。
+- Q: click 回调里 inject？
+  - [✓] 通常不行
+  - [ ] 推荐
+  - [ ] 更快
+  - [ ] 自动
+  - 解析: 先保存引用。
+
+
+---
+
+## 路由出口 outlet
+
+- slug: `route-outlets`
+- level: 进阶
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/route-outlets
+- summary: 主出口与命名出口。
+
+### Outlets
+
+router-outlet 是路由组件的挂载点。命名出口可同时显示侧栏/弹层路由。主出口 name 默认为 primary。
+
+
+### 对应源码 · 命名出口
+
+```typescript
+// routes
+{ path: 'compose', component: ComposeComponent, outlet: 'modal' }
+
+// template
+<router-outlet />
+<router-outlet name="modal" />
+
+// 导航
+this.router.navigate([{ outlets: { modal: ['compose'] } }]);
+```
+
+
+**交互 Demo：** 动手：主出口与辅助出口（kind: `outlet`）
+
+
+**测验：**
+- Q: 挂载点？
+  - [✓] router-outlet
+  - [ ] ng-content only
+  - [ ] iframe
+  - [ ] slot
+  - 解析: outlet。
+- Q: 侧栏并行路由？
+  - [✓] 命名 outlet
+  - [ ] 只能嵌套一层
+  - [ ] 禁止
+  - [ ] CSS float
+  - 解析: named outlet。
+
+
+---
+
+## 导航与路由状态
+
+- slug: `navigate-state`
+- level: 入门
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/navigate-state
+- summary: Router 与 ActivatedRoute。
+
+### Navigate & state
+
+routerLink 声明式导航；Router.navigate/navigateByUrl 编程式。ActivatedRoute 读 paramMap、queryParamMap、data、fragment。toSignal 可把 paramMap 转信号。
+
+
+### 对应源码 · 读参
+
+```typescript
+slug = toSignal(
+  inject(ActivatedRoute).paramMap.pipe(map(p => p.get('slug') ?? '')),
+  { initialValue: '' },
+);
+
+go() {
+  this.router.navigate(['/lesson', 'router'], { queryParams: { from: 'hub' } });
+}
+```
+
+
+**交互 Demo：** 动手：导航（kind: `router`）
+
+
+**测验：**
+- Q: 声明式链接？
+  - [✓] routerLink
+  - [ ] href 硬跳 only
+  - [ ] window.open 必须
+  - [ ] form action
+  - 解析: routerLink。
+- Q: 读 :slug？
+  - [✓] paramMap
+  - [ ] body
+  - [ ] cookie
+  - [ ] css
+  - 解析: paramMap。
+
+
+---
+
+## 变更检测深入
+
+- slug: `change-detection`
+- level: 进阶
+- minutes: 12
+- url: https://xiaoqianran.github.io/learning-angular/lesson/change-detection
+- summary: 默认策略与 OnPush。
+
+### Change detection
+
+默认从根向下检查。OnPush 仅在输入引用变化、事件、async 管道、信号等时检查子树。Zoneless 下更依赖信号与框架通知。
+
+
+### 对应源码 · OnPush
+
+```typescript
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  // ...
+})
+export class ListComponent {
+  items = input.required<Item[]>();
+}
+```
+
+
+**交互 Demo：** 动手：精确更新（kind: `zoneless`）
+
+
+> **提示：** 不可变更新 + OnPush + signals 是现代默认组合。
+
+
+**测验：**
+- Q: OnPush 含义？
+  - [✓] 更少检查
+  - [ ] 关闭更新
+  - [ ] 仅 SSR
+  - [ ] 禁用 DI
+  - 解析: 策略。
+- Q: 列表项更新？
+  - [✓] 新引用/信号
+  - [ ] 原地 mute 对象期望刷新
+  - [ ] 改 CSS 强制
+  - [ ] alert
+  - 解析: 不可变。
+
+
+---
+
+## Host 绑定与监听
+
+- slug: `host-bindings`
+- level: 进阶
+- minutes: 8
+- url: https://xiaoqianran.github.io/learning-angular/lesson/host-bindings
+- summary: host 中的 class/style/事件。
+
+### Host bindings
+
+在 @Component/@Directive 的 host 上绑定 class、style、属性与事件，或用 host 对象。信号版 host bindings 保持同步。
+
+
+### 对应源码 · host
+
+```typescript
+@Component({
+  selector: 'app-chip',
+  standalone: true,
+  host: {
+    'class': 'chip',
+    '[class.active]': 'active()',
+    '(click)': 'toggle()',
+  },
+  template: `<ng-content />`,
+})
+export class ChipComponent {
+  active = signal(false);
+  toggle() { this.active.update(v => !v); }
+}
+```
+
+
+**交互 Demo：** 动手：宿主行为（kind: `directive`）
+
+
+**测验：**
+- Q: 宿主 class 绑定？
+  - [✓] host 对象
+  - [ ] 只能全局 CSS
+  - [ ] index.html
+  - [ ] dns
+  - 解析: host。
+- Q: 宿主点击？
+  - [✓] (click) in host
+  - [ ] 无法监听
+  - [ ] window 必须
+  - [ ] alert
+  - 解析: host 事件。
+
+
+---
+
+# Track: 全栈准备
+
+## 内容投影
+
+- slug: `slots`
+- level: 进阶
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/slots
+- summary: ng-content 与多槽。
+
+### 内容投影
+
+ng-content 把父模板投影进子组件。select 属性区分多槽，类似 Vue 具名插槽。
+
+
+### 对应源码 · ng-content
+
+```typescript
+@Component({
+  standalone: true,
+  selector: 'app-card',
+  template: `
+    <header><ng-content select="[card-title]" /></header>
+    <div class="body"><ng-content /></div>
+  `,
+})
+export class CardComponent {}
+
+// 使用：
+// <app-card>
+//   <h2 card-title>标题</h2>
+//   <p>正文</p>
+// </app-card>
+```
+
+
+**交互 Demo：** 动手：内容投影（kind: `slots`）
+
+
+**测验：**
+- Q: 投影标签？
+  - [✓] ng-content
+  - [ ] ng-template only
+  - [ ] slot Vue
+  - [ ] iframe
+  - 解析: ng-content。
+- Q: 多槽？
+  - [✓] select 选择器
+  - [ ] 无法多槽
+  - [ ] 仅 CSS
+  - [ ] output
+  - 解析: select。
+
+
+---
+
+## 依赖注入进阶
+
+- slug: `provide-inject`
+- level: 进阶
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/provide-inject
+- summary: InjectionToken 与层级。
+
+### DI 层级
+
+providers 可在 root / 路由 / 组件级。组件级 provider 每次创建独立实例。InjectionToken 给接口/配置用。
+
+
+### 对应源码 · Token
+
+```typescript
+import { InjectionToken, inject } from '@angular/core';
+
+export const API_URL = new InjectionToken<string>('API_URL');
+
+// bootstrap: providers: [{ provide: API_URL, useValue: 'https://api.example' }]
+// 组件: const url = inject(API_URL);
+```
+
+
+**交互 Demo：** 动手：DI（kind: `provide`）
+
+
+**测验：**
+- Q: 配置注入？
+  - [✓] InjectionToken
+  - [ ] window.x
+  - [ ] CSS 变量
+  - [ ] localStorage only
+  - 解析: Token。
+- Q: 组件 providers 效果？
+  - [✓] 该子树新实例
+  - [ ] 全局覆盖 root 永久
+  - [ ] 无效果
+  - [ ] 删除 DI
+  - 解析: 子树作用域。
+
+
+---
+
+## 异步数据与请求态
+
+- slug: `async-data`
+- level: 进阶
+- minutes: 12
+- url: https://xiaoqianran.github.io/learning-angular/lesson/async-data
+- summary: HttpClient 与 loading 三态。
+
+### 请求三态
+
+loading / error / data 必备。HttpClient 返回 Observable，用 async 管道或转为 signal。取消用 switchMap / takeUntilDestroyed。
+
+
+### 对应源码 · HttpClient
+
+```typescript
+import { inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+
+export class UsersService {
+  private http = inject(HttpClient);
+  loading = signal(false);
+  error = signal<string | null>(null);
+  users = signal<User[]>([]);
+
+  load() {
+    this.loading.set(true);
+    this.http.get<User[]>('/api/users').subscribe({
+      next: (u) => { this.users.set(u); this.loading.set(false); },
+      error: (e) => { this.error.set(e.message); this.loading.set(false); },
+    });
+  }
+}
+```
+
+
+**交互 Demo：** 动手：异步三态（kind: `async`）
+
+
+> **提示：** 把 HttpClient 逻辑放服务，组件只展示三态；方便单测与复用。
+
+
+**测验：**
+- Q: HTTP 模块？
+  - [✓] HttpClient
+  - [ ] fetch 必须手写包装 only
+  - [ ] axios 内置
+  - [ ] XML
+  - 解析: HttpClient。
+- Q: 三态？
+  - [✓] loading/error/data
+  - [ ] 只有 data
+  - [ ] 只有 error
+  - [ ] 无状态
+  - 解析: 三态。
+
+
+---
+
+## 路由守卫与鉴权心智
+
+- slug: `route-guards`
+- level: 进阶
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/route-guards
+- summary: CanActivateFn 等。
+
+### 守卫
+
+CanActivateFn 决定能否进入路由。前端守卫只是 UX，真正鉴权在服务端。未登录 redirect 到 /login?returnUrl=。
+
+
+### 对应源码 · 守卫
+
+```typescript
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { AuthService } from './auth';
+
+export const authGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+  if (auth.isLoggedIn()) return true;
+  return router.createUrlTree(['/login']);
+};
+```
+
+
+**交互 Demo：** 动手：守卫（kind: `guard`）
+
+
+**测验：**
+- Q: 现代守卫类型？
+  - [✓] CanActivateFn
+  - [ ] only class
+  - [ ] middleware express
+  - [ ] nginx
+  - 解析: 函数守卫。
+- Q: 前端守卫能替代服务端？
+  - [✓] 不能
+  - [ ] 能完全替代
+  - [ ] 仅 HTTPS 时
+  - [ ] 仅 PWA
+  - 解析: 不能。
+
+
+---
+
+## 表单校验
+
+- slug: `form-validate`
+- level: 进阶
+- minutes: 12
+- url: https://xiaoqianran.github.io/learning-angular/lesson/form-validate
+- summary: Validators 与错误展示。
+
+### 响应式表单校验
+
+FormControl 带 Validators.required / email / minLength。模板用 control.invalid && control.touched 显示错误。跨字段用组级 validator。
+
+
+### 对应源码 · Reactive Forms
+
+```typescript
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+
+const form = new FormGroup({
+  email: new FormControl('', [Validators.required, Validators.email]),
+  password: new FormControl('', [Validators.required, Validators.minLength(8)]),
+});
+```
+
+
+**交互 Demo：** 动手：校验（kind: `validate`）
+
+
+**测验：**
+- Q: 必填？
+  - [✓] Validators.required
+  - [ ] required()
+  - [ ] must
+  - [ ] need
+  - 解析: Validators.required。
+- Q: 何时显示错误？
+  - [✓] invalid && touched
+  - [ ] 永远
+  - [ ] 从不
+  - [ ] 仅 blur 服务端
+  - 解析: 交互后再提示。
+
+
+---
+
+## 服务懒加载
+
+- slug: `lazy-services`
+- level: 进阶
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/lazy-services
+- summary: 路由级 providers 与拆包。
+
+### 懒加载服务
+
+providedIn: 'root' 会进主包（可树摇）。要按功能拆包：在懒路由 providers 提供服务，使实例与 chunk 绑定，离开作用域可释放。
+
+
+### 对应源码 · 路由 providers
+
+```typescript
+export const ADMIN_ROUTES: Routes = [
+  {
+    path: '',
+    providers: [AdminApiService],
+    loadComponent: () => import('./admin').then(m => m.AdminComponent),
+  },
+];
+```
+
+
+> **提示：** 官网：lazy-loading-services。大功能模块的 API 客户端适合路由级提供。
+
+
+**测验：**
+- Q: 功能作用域服务？
+  - [✓] 路由 providers
+  - [ ] 必须 root
+  - [ ] window
+  - [ ] CSS
+  - 解析: 路由级。
+- Q: root 服务？
+  - [✓] 应用单例可树摇
+  - [ ] 每个组件新实例
+  - [ ] 不能注入
+  - [ ] 仅测试
+  - 解析: 单例。
+
+
+---
+
+## 配置 HttpClient
+
+- slug: `http-setup`
+- level: 入门
+- minutes: 8
+- url: https://xiaoqianran.github.io/learning-angular/lesson/http-setup
+- summary: provideHttpClient 与功能。
+
+### Setup
+
+standalone 应用用 provideHttpClient()。可组合 withInterceptors、withFetch、withJsonp 等功能。不要忘记在测试中 provideHttpClientTesting。
+
+
+### 对应源码 · provideHttpClient
+
+```typescript
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideHttpClient(
+      withInterceptors([authInterceptor, loggingInterceptor]),
+    ),
+  ],
+});
+```
+
+
+> **提示：** 官网：guide/http/setup。拦截器顺序有意义：认证、日志、缓存按团队约定排列。
+
+
+**测验：**
+- Q: 提供 HttpClient？
+  - [✓] provideHttpClient
+  - [ ] import HttpModule 唯一
+  - [ ] fetch 全局
+  - [ ] jQuery
+  - 解析: standalone 推荐。
+- Q: 注册拦截器？
+  - [✓] withInterceptors
+  - [ ] withCss
+  - [ ] withRouter
+  - [ ] withZone
+  - 解析: 功能组合。
+
+
+---
+
+## 发起 HTTP 请求
+
+- slug: `http-requests`
+- level: 入门
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/http-requests
+- summary: 动词、类型与观察结果。
+
+### Making requests
+
+get/post/put/patch/delete；泛型指定响应类型；observe: 'response' 拿完整响应；context 传拦截器元数据；progress 事件可追踪上传。
+
+
+### 对应源码 · 请求
+
+```typescript
+this.http.get<User[]>('/api/users', {
+  headers: { 'X-Trace': '1' },
+  params: { page: 1 },
+}).subscribe(users => this.users.set(users));
+
+this.http.post<User>('/api/users', body).subscribe();
+```
+
+
+**交互 Demo：** 动手：请求三态回顾（kind: `async`）
+
+
+**测验：**
+- Q: 类型化 GET？
+  - [✓] get<User[]>
+  - [ ] get any 强制
+  - [ ] get()
+  - [ ] ajax
+  - 解析: 泛型。
+- Q: 创建资源？
+  - [✓] post
+  - [ ] get
+  - [ ] head
+  - [ ] options only
+  - 解析: POST。
+
+
+---
+
+## 动态表单
+
+- slug: `dynamic-forms`
+- level: 实战
+- minutes: 12
+- url: https://xiaoqianran.github.io/learning-angular/lesson/dynamic-forms
+- summary: 配置驱动生成控件。
+
+### Dynamic forms
+
+用元数据描述字段（类型、校验、标签），运行时创建 FormGroup/FormArray。适合 CMS、问卷、管理后台可配置表单。
+
+
+### 对应源码 · FormArray
+
+```typescript
+type Field = { key: string; label: string; required?: boolean };
+
+build(fields: Field[]) {
+  const group: Record<string, FormControl> = {};
+  for (const f of fields) {
+    group[f.key] = new FormControl('', f.required ? Validators.required : null);
+  }
+  return new FormGroup(group);
+}
+```
+
+
+**交互 Demo：** 动手：配置生成表单（kind: `dynamic-form`）
+
+
+> **提示：** 官网：guide/forms/dynamic-forms。
+
+
+**测验：**
+- Q: 动态字段容器？
+  - [✓] FormGroup/FormArray
+  - [ ] 仅 CSS grid
+  - [ ] router
+  - [ ] pipe
+  - 解析: 响应式表单树。
+- Q: 适用？
+  - [✓] 可配置问卷/CMS
+  - [ ] 只能登录页
+  - [ ] 静态文案
+  - [ ] 字体
+  - 解析: 配置驱动。
+
+
+---
+
+# Track: 全栈实训
+
+## REST API 与 CRUD
+
+- slug: `rest-api`
+- level: 实战
+- minutes: 12
+- url: https://xiaoqianran.github.io/learning-angular/lesson/rest-api
+- summary: 资源与动词。
+
+### REST
+
+资源用名词复数：/notes。GET 列表/详情，POST 创建，PUT/PATCH 更新，DELETE 删除。状态码：200/201/204/400/401/404/500。
+
+
+### 对应源码 · Notes API
+
+```typescript
+// GET    /api/notes
+// POST   /api/notes
+// PUT    /api/notes/:id
+// DELETE /api/notes/:id
+
+this.http.post<Note>('/api/notes', { title, body }).subscribe();
+```
+
+
+**交互 Demo：** 动手：体会请求（kind: `async`）
+
+
+**测验：**
+- Q: 创建资源？
+  - [✓] POST
+  - [ ] GET
+  - [ ] DELETE
+  - [ ] HEAD
+  - 解析: POST。
+- Q: 未登录？
+  - [✓] 401
+  - [ ] 200
+  - [ ] 301
+  - [ ] 418
+  - 解析: 401。
+
+
+---
+
+## Token 登录与会话
+
+- slug: `auth-token`
+- level: 实战
+- minutes: 12
+- url: https://xiaoqianran.github.io/learning-angular/lesson/auth-token
+- summary: Bearer 与拦截器。
+
+### Token 会话
+
+登录换 JWT/Token，存内存或 httpOnly cookie。HttpInterceptor 附加 Authorization。401 清会话并跳登录。
+
+
+### 对应源码 · 拦截器
+
+```typescript
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  const token = inject(AuthService).token();
+  if (token) {
+    req = req.clone({ setHeaders: { Authorization: `Bearer ${token}` } });
+  }
+  return next(req);
+};
+```
+
+
+**交互 Demo：** 动手：会话心智（kind: `guard`）
+
+
+> **提示：** Token 优先 httpOnly Cookie 防 XSS；若放 localStorage 必须配合 CSP 与严格消毒。
+
+
+**测验：**
+- Q: 附带 Token？
+  - [✓] Interceptor
+  - [ ] 每个组件手写 only
+  - [ ] CSS
+  - [ ] router only
+  - 解析: 拦截器。
+- Q: 401 处理？
+  - [✓] 清 token 去登录
+  - [ ] 忽略
+  - [ ] 死循环请求
+  - [ ] alert 仅
+  - 解析: 清会话。
+
+
+---
+
+## 全栈与 SSR 地图
+
+- slug: `nuxt-map`
+- level: 实战
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/nuxt-map
+- summary: Angular SSR / Analog / 后端边界。
+
+### 全栈地图
+
+Angular 前端 + 任意后端（NestJS 很搭）。需要 SEO 用 Angular SSR / AnalogJS。API 边界清晰：前端不碰密钥。
+
+
+### 对应源码 · 环境配置
+
+```typescript
+// environment.ts
+export const environment = {
+  production: false,
+  apiBase: 'http://localhost:3000/api',
+};
+```
+
+
+**交互 Demo：** 动手：架构选择（kind: `challenge`）
+
+
+**测验：**
+- Q: Angular 后端好搭档？
+  - [✓] NestJS
+  - [ ] 仅 PHP 强制
+  - [ ] Excel
+  - [ ] Flash
+  - 解析: Nest 同 TS。
+- Q: 密钥放前端？
+  - [✓] 绝不
+  - [ ] 可以 localStorage 明文
+  - [ ] 写死组件
+  - [ ] CSS
+  - 解析: 仅后端。
+
+
+---
+
+## 毕业作品清单
+
+- slug: `capstone`
+- level: 实战
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/capstone
+- summary: 做出可演示的全栈小应用。
+
+### 作品清单
+
+建议：登录 + 列表 CRUD + 路由守卫 + 表单校验 + 错误处理 + 基础测试 + 部署。在本站「全栈工坊」先跑通模拟流程。
+
+
+> **提示：** 完成全部课程 + 工坊闯关后可领取结业证明（本地成就）。
+
+
+**交互 Demo：** 动手：作品核心 Todo（kind: `todo`）
+
+
+**测验：**
+- Q: 最小可演示？
+  - [✓] 登录+CRUD+守卫
+  - [ ] 仅静态页
+  - [ ] 仅 README
+  - [ ] 仅颜色
+  - 解析: 端到端主路径。
+- Q: 工坊用途？
+  - [✓] 模拟 REST 闯关
+  - [ ] 真生产库
+  - [ ] 发邮件
+  - [ ] 挖矿
+  - 解析: 模拟 API。
+
+
+---
+
+## SSR 与 Hydration
+
+- slug: `ssr-hydration`
+- level: 实战
+- minutes: 12
+- url: https://xiaoqianran.github.io/learning-angular/lesson/ssr-hydration
+- summary: 服务端渲染与增量激活。
+
+### SSR / Hybrid
+
+服务端先出 HTML 利于 SEO 与首屏；浏览器再 hydration 接上事件。Angular 支持全 SSR、客户端、以及按路由的渲染策略。Incremental Hydration 可推迟非关键块激活。
+
+
+### 对应源码 · 心智
+
+```typescript
+// ng new --ssr
+// 路由级渲染模式、hydrate 配置见官网
+// 避免在构造期直接碰 window/document
+// 用 afterNextRender 做仅浏览器逻辑
+```
+
+
+> **提示：** 官网：SSR、Hydration、Incremental Hydration、Hybrid rendering。本站工坊是客户端模拟 API，部署真实 SSR 用 CLI 脚手架。
+
+
+**测验：**
+- Q: SSR 主要收益？
+  - [✓] 首屏 HTML / SEO
+  - [ ] 更慢网络
+  - [ ] 删除 CSS
+  - [ ] 替代数据库
+  - 解析: 可索引与首屏。
+- Q: 浏览器专用逻辑？
+  - [✓] afterNextRender 等
+  - [ ] constructor 直接 window
+  - [ ] CSS only
+  - [ ] index.html 脚本强制
+  - 解析: 平台安全。
+
+
+---
+
+## 混合渲染策略
+
+- slug: `hybrid-rendering`
+- level: 实战
+- minutes: 12
+- url: https://xiaoqianran.github.io/learning-angular/lesson/hybrid-rendering
+- summary: 按路由 SSR/CSR。
+
+### Hybrid rendering
+
+可按路由选择服务端渲染、客户端渲染或预渲染。营销页 SSR/SSG，后台工具 CSR。配合 hydration 与增量激活。
+
+
+### 对应源码 · 心智配置
+
+```typescript
+// 路由级 render mode（概念）
+// home: Server
+// dashboard: Client
+// docs: Prerender
+// 具体 API 见 angular.dev/guide/hybrid-rendering
+```
+
+
+> **提示：** 与 ssr-hydration 课互补。选择策略看 SEO、首屏、交互复杂度。
+
+
+**测验：**
+- Q: 后台工具常见？
+  - [✓] CSR
+  - [ ] 必须全站 SSR
+  - [ ] 仅 PDF
+  - [ ] 关 JS
+  - 解析: CSR 合适。
+- Q: 营销落地页？
+  - [✓] SSR/SSG
+  - [ ] 只能 CSR
+  - [ ] ftp
+  - [ ] 邮件
+  - 解析: 利于 SEO。
+
+
+---
+
+# Track: 工程化
+
+## Angular 与 TypeScript
+
+- slug: `angular-ts`
+- level: 进阶
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/angular-ts
+- summary: 类型化组件与表单。
+
+### TypeScript
+
+Angular 默认 TS。给 input/output、Http 泛型、FormGroup 类型，消灭 any。strict 模板检查能抓绑定错误。
+
+
+### 对应源码 · 类型化 HTTP
+
+```typescript
+this.http.get<User[]>('/api/users') // User[] 而非 any
+```
+
+
+**交互 Demo：** 动手：类型化表单感（kind: `form`）
+
+
+**测验：**
+- Q: HTTP 泛型？
+  - [✓] get<User[]>
+  - [ ] get any 强制
+  - [ ] 无泛型
+  - [ ] only string
+  - 解析: 泛型。
+- Q: strictTemplates？
+  - [✓] 检查模板绑定
+  - [ ] 仅 CSS
+  - [ ] 禁用 TS
+  - [ ] 打包图片
+  - 解析: 模板类型检查。
+
+
+---
+
+## 封装 API 客户端
+
+- slug: `api-client`
+- level: 进阶
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/api-client
+- summary: 统一 baseURL / 错误 / Token。
+
+### API 客户端
+
+一个 ApiService：拼接 baseURL、JSON、错误映射、带 token。业务服务只调语义化方法 listNotes()。
+
+
+### 对应源码 · ApiService
+
+```typescript
+@Injectable({ providedIn: 'root' })
+export class ApiService {
+  private http = inject(HttpClient);
+  private base = environment.apiBase;
+  get<T>(path: string) {
+    return this.http.get<T>(`${this.base}${path}`);
+  }
+}
+```
+
+
+**交互 Demo：** 动手：统一请求（kind: `async`）
+
+
+**测验：**
+- Q: 为何封装？
+  - [✓] 统一错误与鉴权
+  - [ ] 变慢
+  - [ ] 必须多一层 class 炫技
+  - [ ] 替代 HTML
+  - 解析: 横切能力。
+- Q: 业务层调用？
+  - [✓] 语义化方法
+  - [ ] 到处拼 URL
+  - [ ] 直接 XMLHttp
+  - [ ] eval
+  - 解析: listNotes 等。
+
+
+---
+
+## 测试入门
+
+- slug: `testing-vue`
+- level: 进阶
+- minutes: 12
+- url: https://xiaoqianran.github.io/learning-angular/lesson/testing-vue
+- summary: TestBed 与组件测试。
+
+### 测试
+
+单元：服务纯逻辑。组件：TestBed + 触发事件断言 DOM。E2E：Playwright/Cypress 走登录→CRUD。先测关键路径。
+
+
+### 对应源码 · 组件测试
+
+```typescript
+TestBed.configureTestingModule({
+  imports: [CounterComponent],
+});
+const fixture = TestBed.createComponent(CounterComponent);
+fixture.detectChanges();
+expect(fixture.nativeElement.textContent).toContain('0');
+```
+
+
+**交互 Demo：** 动手：测什么（kind: `challenge`）
+
+
+**测验：**
+- Q: 组件测试床？
+  - [✓] TestBed
+  - [ ] only Jest DOM
+  - [ ] Photoshop
+  - [ ] SSH
+  - 解析: TestBed。
+- Q: E2E 覆盖？
+  - [✓] 主用户路径
+  - [ ] 每个 private 方法
+  - [ ] node_modules
+  - [ ] 颜色像素
+  - 解析: 主路径。
+
+
+---
+
+## 生产部署清单
+
+- slug: `deploy-prod`
+- level: 进阶
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/deploy-prod
+- summary: build、环境、SPA fallback。
+
+### 部署
+
+ng build 产出静态文件。history 路由需服务器 SPA fallback。环境变量区分 prod API。开启 budgets 与 source map 策略。GitHub Pages / Vercel / Nginx 均可。
+
+
+### 对应源码 · 构建
+
+```typescript
+ng build --configuration production
+# 输出 dist/ 下浏览器资源
+```
+
+
+**交互 Demo：** 动手：上线检查项（kind: `challenge`）
+
+
+**测验：**
+- Q: history 刷新 404？
+  - [✓] 配 SPA fallback
+  - [ ] 放弃路由
+  - [ ] 只用 hash 强制
+  - [ ] 关 CDN
+  - 解析: fallback。
+- Q: 生产 API 地址？
+  - [✓] 环境配置
+  - [ ] 写死开发机 IP
+  - [ ] 用户猜
+  - [ ] 注释里
+  - 解析: environment。
+
+
+---
+
+## 安全最佳实践
+
+- slug: `security`
+- level: 实战
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/security
+- summary: XSS、消毒与信任策略。
+
+### Angular 安全模型
+
+默认对绑定做消毒，降低 XSS。避免绕过安全（随便 bypassSecurityTrust*）。不要把不可信 HTML 塞进 [innerHTML]。Token 勿长期放可被脚本读的存储；配合 CSP、HTTPS、严格后端鉴权。
+
+
+### 对应源码 · 危险模式（反例）
+
+```typescript
+// 反例：信任用户输入 HTML
+// this.html = this.sanitizer.bypassSecurityTrustHtml(userInput)
+
+// 正例：纯文本插值 {{ userInput }}
+// 或服务端严格白名单后再展示
+```
+
+
+> **提示：** 官网 Best practices → Security。安全是全栈问题：前端消毒 ≠ 后端可省略校验。
+
+
+**测验：**
+- Q: 默认防护？
+  - [✓] 模板绑定消毒
+  - [ ] 无防护
+  - [ ] 仅 HTTPS 就够
+  - [ ] 关闭 CSP
+  - 解析: 框架默认消毒。
+- Q: 用户 HTML？
+  - [✓] 极度谨慎 / 消毒
+  - [ ] 直接 bypass
+  - [ ] eval 执行
+  - [ ] innerHTML 无脑
+  - 解析: 防 XSS。
+
+
+---
+
+## 国际化 i18n
+
+- slug: `i18n`
+- level: 进阶
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/i18n
+- summary: 多语言与本地化。
+
+### i18n 概览
+
+Angular 本地化方案：模板标记、提取文案、按 locale 构建。也可用运行时库（如 ngx-translate）做动态切换。日期/数字/货币用 locale 感知管道。
+
+
+### 对应源码 · 模板标记思路
+
+```html
+<h1 i18n="@@homeHello">你好</h1>
+<p>{{ price | currency: 'CNY' }}</p>
+<p>{{ now | date: 'medium' }}</p>
+```
+
+
+> **提示：** 官网：angular.dev/guide/i18n。产品若需运行时切语言，评估运行时 i18n 方案与打包体积。
+
+
+**测验：**
+- Q: 模板本地化标记？
+  - [✓] i18n 属性
+  - [ ] v-t
+  - [ ] translate.js 强制
+  - [ ] innerText
+  - 解析: i18n。
+- Q: 货币显示？
+  - [✓] currency 管道
+  - [ ] 手写 $ 拼接 only
+  - [ ] CSS content
+  - [ ] alert
+  - 解析: locale 管道。
+
+
+---
+
+## 官方风格指南精华
+
+- slug: `style-guide`
+- level: 进阶
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/style-guide
+- summary: 命名、结构、inject 偏好。
+
+### 一致性优先
+
+文件名连字符 user-profile.ts；测试 user-profile.spec.ts；按功能目录组织；一文件一概念。依赖注入优先 inject()。组件专注展示，复杂逻辑进服务。模板避免复杂表达式。
+
+
+### 对应源码 · 风格
+
+```typescript
+// 优先
+private readonly api = inject(ApiService);
+readonly title = input.required<string>();
+
+// 模板成员可用 protected
+protected onSave(): void { /* ... */ }
+
+// 类与样式绑定优先 [class]/[style]，而非 ngClass 堆叠
+```
+
+
+> **提示：** 完整指南：next.angular.dev/style-guide 与 angular.dev 文档。团队内用 ESLint + 格式化固化。
+
+
+**测验：**
+- Q: 注入偏好？
+  - [✓] inject()
+  - [ ] 仅构造器参数永远
+  - [ ] 全局变量
+  - [ ] require
+  - 解析: 官方推荐 inject。
+- Q: 文件命名？
+  - [✓] kebab-case
+  - [ ] PascalCase 文件名强制
+  - [ ] 无规则
+  - [ ] 空格
+  - 解析: 连字符。
+
+
+---
+
+## NgOptimizedImage
+
+- slug: `image-optimization`
+- level: 进阶
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/image-optimization
+- summary: 图片性能与 loader。
+
+### 图片优化
+
+NgOptimizedImage（NgSrc）自动处理优先级、srcset、懒加载与尺寸警告。fill 模式适合响应式容器。可配置 CDN loader。
+
+
+### 对应源码 · ngSrc
+
+```typescript
+import { NgOptimizedImage } from '@angular/common';
+
+@Component({
+  standalone: true,
+  imports: [NgOptimizedImage],
+  template: `
+    <img ngSrc="/assets/hero.png" width="800" height="400" priority />
+    <img ngSrc="/assets/card.png" width="400" height="300" />
+  `,
+})
+export class HeroComponent {}
+```
+
+
+**交互 Demo：** 动手：priority vs lazy（kind: `image-opt`）
+
+
+> **提示：** 官网：guide/image-optimization。LCP 图加 priority；其余默认懒加载。
+
+
+**测验：**
+- Q: 优化图片指令？
+  - [✓] NgOptimizedImage / ngSrc
+  - [ ] img-magic
+  - [ ] background only
+  - [ ] base64 全塞
+  - 解析: 官方图片指令。
+- Q: 首屏大图？
+  - [✓] priority
+  - [ ] 永远 lazy
+  - [ ] 隐藏
+  - [ ] iframe
+  - 解析: 优先加载。
+
+
+---
+
+## 轻量 InjectionToken
+
+- slug: `lightweight-tokens`
+- level: 实战
+- minutes: 8
+- url: https://xiaoqianran.github.io/learning-angular/lesson/lightweight-tokens
+- summary: 优化库的 token 设计。
+
+### Lightweight tokens
+
+库作者可用轻量 token 减少保留名称、优化 tree-shaking。应用侧用 InjectionToken 配置 API_URL、FEATURE_FLAGS 等。
+
+
+### 对应源码 · Token
+
+```typescript
+export const API_BASE = new InjectionToken<string>('API_BASE');
+
+bootstrapApplication(App, {
+  providers: [{ provide: API_BASE, useValue: 'https://api.example.com' }],
+});
+```
+
+
+> **提示：** 官网：lightweight-injection-tokens。应用开发掌握 InjectionToken + 多 provider 即可。
+
+
+**测验：**
+- Q: 配置注入常用？
+  - [✓] InjectionToken
+  - [ ] 全局 var
+  - [ ] localStorage only
+  - [ ] CSS 变量强制
+  - 解析: Token。
+- Q: 提供值？
+  - [✓] provide/useValue
+  - [ ] 只能 class
+  - [ ] HTML attr
+  - [ ] dns
+  - 解析: providers。
+
+
+---
+
+## 严格类型表单
+
+- slug: `typed-forms`
+- level: 进阶
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/typed-forms
+- summary: NonNullable 与类型推断。
+
+### Typed forms
+
+Reactive Forms 支持严格类型：FormControl<string>、NonNullableFormBuilder、FormGroup 嵌套类型推断。减少 getRawValue 的 any。
+
+
+### 对应源码 · 类型化
+
+```typescript
+const fb = inject(NonNullableFormBuilder);
+const form = fb.group({
+  email: fb.control('', { validators: [Validators.email] }),
+  age: fb.control(18),
+});
+// form.controls.email.value 类型为 string
+```
+
+
+**交互 Demo：** 动手：类型化控件（kind: `typed-form`）
+
+
+> **提示：** 官网：guide/forms/typed-forms。
+
+
+**测验：**
+- Q: 非空 builder？
+  - [✓] NonNullableFormBuilder
+  - [ ] AnyBuilder
+  - [ ] Signal only
+  - [ ] jQuery
+  - 解析: NN fb。
+- Q: 收益？
+  - [✓] 编译期类型
+  - [ ] 更慢网络
+  - [ ] 删除校验
+  - [ ] 无
+  - 解析: 类型安全。
+
+
+---
+
+## 无障碍与 ARIA
+
+- slug: `aria-a11y`
+- level: 进阶
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/aria-a11y
+- summary: 可访问组件基础。
+
+### Accessibility
+
+语义化 HTML 优先，再补 ARIA。焦点顺序、键盘操作、对比度、live region 公告。Angular 提供 ARIA 指南与 CDK a11y 工具（FocusTrap、LiveAnnouncer）。
+
+
+### 对应源码 · 对话框要点
+
+```typescript
+<!-- role、标签、焦点陷阱 -->
+<div role="dialog" aria-modal="true" aria-labelledby="t">
+  <h2 id="t">确认删除</h2>
+  <button type="button">取消</button>
+  <button type="button">删除</button>
+</div>
+```
+
+
+> **提示：** 官网：guide/aria。测试：键盘-only、读屏、强制颜色。
+
+
+**测验：**
+- Q: 优先？
+  - [✓] 语义 HTML
+  - [ ] 满屏 div+role
+  - [ ] 仅颜色提示
+  - [ ] 自动播放声
+  - 解析: 语义优先。
+- Q: 模态框？
+  - [✓] 焦点陷阱+标签
+  - [ ] 无焦点管理
+  - [ ] 禁止 Esc 永远
+  - [ ] 闪烁
+  - 解析: a11y 模式。
+
+
+---
+
+## 测试深入
+
+- slug: `testing-deep`
+- level: 进阶
+- minutes: 12
+- url: https://xiaoqianran.github.io/learning-angular/lesson/testing-deep
+- summary: 服务、组件场景与覆盖率。
+
+### Testing depth
+
+服务：直接 new 或 TestBed 注入 mock 依赖。组件：TestBed + 触发事件 + 断言 DOM。覆盖率看分支而非追求 100%。调试：fdescribe/fit 临时聚焦。
+
+
+### 对应源码 · 服务测试
+
+```typescript
+describe('CartStore', () => {
+  it('adds item', () => {
+    const store = new CartStore();
+    store.add('a');
+    expect(store.totalQty()).toBe(1);
+  });
+});
+```
+
+
+> **提示：** 官网 testing 系列：services、components-basics、scenarios、debugging、coverage。
+
+
+**测验：**
+- Q: 组件测试床？
+  - [✓] TestBed
+  - [ ] only Playwright
+  - [ ] Photoshop
+  - [ ] SSH
+  - 解析: TestBed。
+- Q: 覆盖率目标？
+  - [✓] 关键路径优先
+  - [ ] 必须 100% 每一行
+  - [ ] 0
+  - [ ] 只测 CSS
+  - 解析: 风险驱动。
+
+
+---
+
+## Component Harness
+
+- slug: `component-harness`
+- level: 实战
+- minutes: 12
+- url: https://xiaoqianran.github.io/learning-angular/lesson/component-harness
+- summary: 稳定的组件测试 API。
+
+### Harness
+
+Component Harness 为组件提供测试专用 API，屏蔽内部 DOM 结构变化，单元/集成/e2e 可复用。CDK Testing 支持。
+
+
+### 对应源码 · 使用 harness
+
+```typescript
+const loader = TestbedHarnessEnvironment.loader(fixture);
+const btn = await loader.getHarness(MatButtonHarness.with({ text: '保存' }));
+await btn.click();
+```
+
+
+**交互 Demo：** 动手：通过 API 点按钮（kind: `harness`）
+
+
+> **提示：** 官网：component-harnesses-overview。库作者应为公开组件提供 harness。
+
+
+**测验：**
+- Q: Harness 好处？
+  - [✓] 稳定测试 API
+  - [ ] 更慢编译必须
+  - [ ] 替代生产代码
+  - [ ] 加密
+  - 解析: 抗重构。
+- Q: 环境？
+  - [✓] TestbedHarnessEnvironment 等
+  - [ ] only Selenium IDE
+  - [ ] Excel
+  - [ ] FTP
+  - 解析: CDK testing。
+
+
+---
+
+## 错误与扩展诊断
+
+- slug: `errors-diagnostics`
+- level: 进阶
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/errors-diagnostics
+- summary: NG 错误码与编译诊断。
+
+### Errors & diagnostics
+
+运行时错误有 NG 错误码百科。扩展诊断（extended diagnostics）在编译期抓模板坏味道。遇到报错先查官方 error encyclopedia。
+
+
+### 对应源码 · 配置诊断（概念）
+
+```typescript
+// angular.json / tsconfig 中启用严格模板与扩展诊断
+// strictTemplates: true
+// 根据文档打开具体 diagnostic 规则
+```
+
+
+**交互 Demo：** 动手：读懂错误信息（kind: `diagnostics`）
+
+
+> **提示：** 官网：/errors 与 /extended-diagnostics。
+
+
+**测验：**
+- Q: 查 NG 错误？
+  - [✓] Error encyclopedia
+  - [ ] 随机猜
+  - [ ] 删 node_modules 必好
+  - [ ] 关 TS
+  - 解析: 官方百科。
+- Q: 模板坏味道？
+  - [✓] extended diagnostics
+  - [ ] only runtime
+  - [ ] csslint 替代一切
+  - [ ] 无
+  - 解析: 编译期。
+
+
+---
+
+## 升级与版本更新
+
+- slug: `update-angular`
+- level: 进阶
+- minutes: 8
+- url: https://xiaoqianran.github.io/learning-angular/lesson/update-angular
+- summary: ng update 与兼容。
+
+### Keeping updated
+
+ng update @angular/core @angular/cli 执行官方迁移 schematic。先读 update guide，单步升级主版本，跑测试与 build。
+
+
+### 对应源码 · 升级
+
+```typescript
+ng update @angular/core@20 @angular/cli@20
+# 查看可用迁移
+ng update
+```
+
+
+> **提示：** 官网：update-guide 与 /update。锁定 package-lock，CI 验证。
+
+
+**测验：**
+- Q: 官方升级？
+  - [✓] ng update
+  - [ ] 手动改号即可永远
+  - [ ] npm ignore
+  - [ ] del node
+  - 解析: schematics。
+- Q: 大版本策略？
+  - [✓] 按指南逐步
+  - [ ] 一次跳 5 大版本无测
+  - [ ] 不升级
+  - [ ] 只改 README
+  - 解析: 可控迁移。
+
+
+---
+
+# Track: 进阶模式
+
+## CDK Overlay 与传送
+
+- slug: `teleport`
+- level: 实战
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/teleport
+- summary: 弹层挂到 body。
+
+### Overlay
+
+模态/下拉常用 Angular CDK Overlay 或对话框服务，挂到 body 避免 overflow 裁剪。类似 Vue Teleport。
+
+
+### 对应源码 · Dialog 思路
+
+```typescript
+// 使用 MatDialog / CDK Overlay
+// this.dialog.open(MyDialogComponent, { data });
+```
+
+
+**交互 Demo：** 动手：弹层（kind: `teleport`）
+
+
+**测验：**
+- Q: 弹层为何挂 body？
+  - [✓] 避免裁剪/层叠问题
+  - [ ] 更快网络
+  - [ ] SEO
+  - [ ] 更小包
+  - 解析: 层叠上下文。
+- Q: 官方辅助？
+  - [✓] CDK Overlay
+  - [ ] 仅 alert
+  - [ ] window.open only
+  - [ ] iframe
+  - 解析: CDK。
+
+
+---
+
+## 路由复用缓存
+
+- slug: `keep-alive`
+- level: 实战
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/keep-alive
+- summary: RouteReuseStrategy。
+
+### 缓存路由
+
+自定义 RouteReuseStrategy 可缓存组件实例（类似 KeepAlive）。适合列表↔详情返回保持滚动。别滥用：内存与状态过期要处理。
+
+
+### 对应源码 · 复用心智
+
+```typescript
+// 实现 RouteReuseStrategy
+// shouldDetach / store / shouldAttach / retrieve
+// 按 route.data['reuse'] 决定是否缓存
+```
+
+
+**交互 Demo：** 动手：缓存切换（kind: `keepalive`）
+
+
+**测验：**
+- Q: 缓存路由接口？
+  - [✓] RouteReuseStrategy
+  - [ ] KeepAlive 指令 Vue 强制
+  - [ ] localStorage 组件
+  - [ ] CSS
+  - 解析: ReuseStrategy。
+- Q: 滥用风险？
+  - [✓] 内存与脏状态
+  - [ ] 更快一定无代价
+  - [ ] 自动清服务器
+  - [ ] 无
+  - 解析: 内存。
+
+
+---
+
+## 自定义指令
+
+- slug: `custom-directive`
+- level: 实战
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/custom-directive
+- summary: Attribute Directive。
+
+### 指令
+
+@Directive 给宿主加行为：高亮、点击外部关闭、权限隐藏。优先组合组件；指令适合横切 DOM 行为。
+
+
+### 对应源码 · 高亮指令
+
+```typescript
+@Directive({
+  selector: '[appHighlight]',
+  standalone: true,
+})
+export class HighlightDirective {
+  private el = inject(ElementRef);
+  @HostListener('mouseenter') onEnter() {
+    this.el.nativeElement.style.background = '#dd003133';
+  }
+}
+```
+
+
+**交互 Demo：** 动手：指令（kind: `directive`）
+
+
+**测验：**
+- Q: 指令装饰器？
+  - [✓] @Directive
+  - [ ] @Component only
+  - [ ] @Pipe
+  - [ ] @NgModule
+  - 解析: @Directive。
+- Q: 指令适合？
+  - [✓] 横切 DOM 行为
+  - [ ] 整页业务
+  - [ ] 数据库
+  - [ ] DNS
+  - 解析: DOM 行为。
+
+
+---
+
+## 性能模式
+
+- slug: `perf-patterns`
+- level: 实战
+- minutes: 12
+- url: https://xiaoqianran.github.io/learning-angular/lesson/perf-patterns
+- summary: OnPush、track、懒加载。
+
+### 性能
+
+OnPush + signals；@for track；路由/组件懒加载；大列表虚拟滚动；避免模板重计算；图片懒加载与预算。
+
+
+### 对应源码 · 懒加载路由
+
+```typescript
+{
+  path: 'admin',
+  loadChildren: () => import('./admin/routes').then(m => m.ADMIN_ROUTES),
+}
+```
+
+
+**交互 Demo：** 动手：性能清单（kind: `challenge`）
+
+
+**测验：**
+- Q: 大列表？
+  - [✓] 虚拟滚动 + track
+  - [ ] 一次渲染 10 万 DOM
+  - [ ] 不用 track
+  - [ ] setInterval 刷新
+  - 解析: 虚拟化。
+- Q: 拆包？
+  - [✓] 懒加载路由/组件
+  - [ ] 全部打一个巨大 main
+  - [ ] 禁用 tree-shake
+  - [ ] inline 一切
+  - 解析: 懒加载。
+
+
+---
+
+## 面试高频串讲
+
+- slug: `interview-vue`
+- level: 实战
+- minutes: 14
+- url: https://xiaoqianran.github.io/learning-angular/lesson/interview-vue
+- summary: DI、变更检测、Signals 一口说清。
+
+### 怎么答「Angular DI」
+
+层次化注入器：root / 路由 / 组件。Token 映射到 provider。组件树可覆盖服务实例。
+
+
+### 怎么答「变更检测」
+
+默认检查整棵树；OnPush 只在输入引用变化、事件、async、signal 时检查。Ivy 与 signals 让精细更新更自然。
+
+
+### 怎么答「Signals」
+
+细粒度响应式原语：读时收集依赖，写时通知。computed 缓存，effect 副作用。可与 RxJS 互操作。
+
+
+> **提示：** 开口顺序：场景 → 原理一句话 → 代码点 → 坑。可配合速查表背骨架。
+
+
+> **提示：** 面试时主动对比 Signals 与 RxJS：同步细粒度 UI 状态用 signal；多事件流组合用 Observable。zoneless + signals 是演进方向。
+
+
+### 对应源码 · signal 口述
+
+```typescript
+count = signal(0);
+double = computed(() => this.count() * 2);
+// 模板 {{ double() }} 自动追踪
+```
+
+
+**交互 Demo：** 口述时配合此 Demo（kind: `ref-vs-reactive`）
+
+
+**测验：**
+- Q: Angular 响应式新原语？
+  - [✓] Signals
+  - [ ] 仅 Zone 永远
+  - [ ] jQuery
+  - [ ] SOAP
+  - 解析: Signals。
+- Q: OnPush 含义？
+  - [✓] 更少检查更可控
+  - [ ] 关闭一切更新
+  - [ ] 仅 SSR
+  - [ ] 禁用 DI
+  - 解析: 策略优化。
+- Q: Zone.js 方向？
+  - [✓] zoneless + signals 演进
+  - [ ] 永远强制 Zone
+  - [ ] 已删除浏览器
+  - [ ] 仅 IE
+  - 解析: 更细粒度更新。
+
+
+---
+
+## @defer 延迟加载
+
+- slug: `defer-loading`
+- level: 进阶
+- minutes: 12
+- url: https://xiaoqianran.github.io/learning-angular/lesson/defer-loading
+- summary: 按需加载组件与依赖。
+
+### 为什么 @defer
+
+@defer 把重型组件及其依赖拆到懒 chunk，用 trigger 控制何时加载：viewport、interaction、idle、timer、when 条件等。可配 @placeholder / @loading / @error，以及 prefetch。
+
+
+### 对应源码 · @defer
+
+```html
+@defer (on viewport; prefetch on idle) {
+  <app-heavy-chart [data]="data()" />
+} @placeholder {
+  <p>图表占位</p>
+} @loading (minimum 200ms) {
+  <p>加载中…</p>
+} @error {
+  <p>加载失败</p>
+}
+```
+
+
+**交互 Demo：** 动手：模拟 defer 阶段（kind: `defer`）
+
+
+> **提示：** 避免嵌套 defer 造成瀑布请求；注意布局偏移与无障碍。SSR/SSG 下行为见官网 defer 指南。
+
+
+**测验：**
+- Q: 进入视口再加载？
+  - [✓] on viewport
+  - [ ] on always
+  - [ ] on bootstrap
+  - [ ] on zone
+  - 解析: viewport trigger。
+- Q: 失败分支？
+  - [✓] @error
+  - [ ] @catch
+  - [ ] @fail
+  - [ ] @else
+  - 解析: @error。
+
+
+---
+
+## linkedSignal 联动状态
+
+- slug: `linked-signal`
+- level: 进阶
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/linked-signal
+- summary: 依赖其他状态的可写信号。
+
+### linkedSignal
+
+当本地状态需要跟随源信号重置/派生，又允许用户改写时用 linkedSignal。例如选项列表变化时，选中项默认跟到第一项，用户仍可改选。
+
+
+### 对应源码 · linkedSignal
+
+```typescript
+options = signal(['标准', '加急', '自提']);
+selected = linkedSignal(() => this.options()[0]);
+
+// 源变化 → selected 重算默认
+// 用户仍可 selected.set('加急')
+```
+
+
+**交互 Demo：** 动手：选项联动（kind: `linked`）
+
+
+**测验：**
+- Q: 可写且依赖源状态？
+  - [✓] linkedSignal
+  - [ ] 仅 computed
+  - [ ] 仅 effect
+  - [ ] FormControl
+  - 解析: linkedSignal。
+- Q: 纯只读派生？
+  - [✓] computed
+  - [ ] linkedSignal 必须
+  - [ ] model
+  - [ ] output
+  - 解析: computed。
+
+
+---
+
+## resource 与 httpResource
+
+- slug: `resource-api`
+- level: 进阶
+- minutes: 12
+- url: https://xiaoqianran.github.io/learning-angular/lesson/resource-api
+- summary: 异步资源的信号式状态。
+
+### Resource API
+
+resource 把异步加载建模为信号状态：value / status / error / isLoading / reload。httpResource 是基于 HttpClient 的封装，走拦截器栈，适合声明式请求。
+
+
+### 对应源码 · httpResource 思路
+
+```typescript
+userId = signal('1');
+user = httpResource(() => `/api/users/${this.userId()}`);
+
+// 模板
+// @if (user.isLoading()) { Loading }
+// @else if (user.error()) { Error }
+// @else { {{ user.value()?.name }} }
+```
+
+
+**交互 Demo：** 动手：资源三态（kind: `resource`）
+
+
+> **提示：** 与手写 loading/error/data 相比，resource 统一状态机，减少样板代码。详见 angular.dev/guide/signals/resource 与 http-resource。
+
+
+**测验：**
+- Q: HTTP 版 resource？
+  - [✓] httpResource
+  - [ ] fetchSignal
+  - [ ] ajax()
+  - [ ] HttpClient.only
+  - 解析: httpResource。
+- Q: resource 典型状态？
+  - [✓] value/status/error
+  - [ ] 仅 Promise
+  - [ ] 仅 DOM
+  - [ ] 仅 CSS
+  - 解析: 信号状态机。
+
+
+---
+
+## Signal Forms 入门
+
+- slug: `signal-forms`
+- level: 进阶
+- minutes: 12
+- url: https://xiaoqianran.github.io/learning-angular/lesson/signal-forms
+- summary: 以信号为中心的新型表单。
+
+### Signal Forms
+
+Angular 正在演进 Signal Forms：表单模型与校验更贴近 signals，减少与 RxJS/ControlValueAccessor 样板。现有 Reactive Forms 仍是生产主力；新项目关注官网 Signal Forms 指南。
+
+
+### 对应源码 · 心智对照
+
+```typescript
+// 今日主力：Reactive Forms
+form = new FormGroup({
+  email: new FormControl('', { nonNullable: true, validators: [Validators.email] }),
+});
+
+// Signal Forms：模型即信号，字段状态可细粒度订阅
+// 详见 angular.dev/guide/forms/signals/overview
+```
+
+
+**交互 Demo：** 动手：先掌握校验心智（kind: `validate`）
+
+
+**测验：**
+- Q: 目前生产表单主力？
+  - [✓] Reactive Forms 仍常用
+  - [ ] 只能 Signal Forms
+  - [ ] 只能模板表单
+  - [ ] 不能表单
+  - 解析: 成熟稳定。
+- Q: Signal Forms 目标？
+  - [✓] 信号化模型与更少样板
+  - [ ] 删除 TypeScript
+  - [ ] 替代 HTTP
+  - [ ] 只做动画
+  - 解析: 演进方向。
+
+
+---
+
+## Zoneless 变更检测
+
+- slug: `zoneless`
+- level: 实战
+- minutes: 12
+- url: https://xiaoqianran.github.io/learning-angular/lesson/zoneless
+- summary: 去掉 ZoneJS 的现代路径。
+
+### 为什么 Zoneless
+
+ZoneJS 通过补丁异步任务粗粒度触发变更检测，可能过度刷新。Zoneless 依赖 signals、显式通知、异步管道等精确调度，提升性能与 Core Web Vitals，减小包体。
+
+
+### 对应源码 · 提供 zoneless
+
+```typescript
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideZonelessChangeDetection(),
+    // ...
+  ],
+});
+
+// 组件内优先 signal / OnPush
+// 第三方非信号库需注意手动 markForCheck 或适配
+```
+
+
+**交互 Demo：** 动手：精确更新 vs 粗粒度（kind: `zoneless`）
+
+
+> **提示：** 官网：angular.dev/guide/zoneless。新应用优先信号 + zoneless；迁移时逐步替换依赖 Zone 的模式。
+
+
+**测验：**
+- Q: Zoneless 优势？
+  - [✓] 更精确 CD / 更好性能
+  - [ ] 必须 jQuery
+  - [ ] 禁用 HTTP
+  - [ ] 删除组件
+  - 解析: 精确调度。
+- Q: 状态通知手段？
+  - [✓] signals 等
+  - [ ] 只有 setInterval
+  - [ ] 只有 CSS
+  - [ ] eval
+  - 解析: 信号驱动。
+
+
+---
+
+## 动画与路由过渡
+
+- slug: `animations-css`
+- level: 进阶
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/animations-css
+- summary: CSS 动画与路由转场。
+
+### 现代动画
+
+优先原生 CSS / 网页动画 API。路由过渡可用 Angular 路由动画能力。旧 @angular/animations 语法可迁移到 CSS。尊重 prefers-reduced-motion。
+
+
+### 对应源码 · CSS 过渡
+
+```css
+.fade-enter {
+  opacity: 0;
+  transform: translateY(4px);
+}
+.fade-enter-active {
+  opacity: 1;
+  transform: none;
+  transition: 180ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+```
+
+
+**测验：**
+- Q: 现代优先？
+  - [✓] CSS / 原生动画
+  - [ ] 必须 jQuery animate
+  - [ ] setInterval 改 top
+  - [ ] Flash
+  - 解析: CSS 优先。
+- Q: 无障碍？
+  - [✓] prefers-reduced-motion
+  - [ ] 忽略
+  - [ ] 强制 3s 动画
+  - [ ] 自动音效
+  - 解析: 尊重系统设置。
+
+
+---
+
+## 指令组合 API
+
+- slug: `directive-composition`
+- level: 进阶
+- minutes: 12
+- url: https://xiaoqianran.github.io/learning-angular/lesson/directive-composition
+- summary: hostDirectives 复用行为。
+
+### Directive composition
+
+hostDirectives 让组件/指令声明式挂载其他指令，并转发 inputs/outputs。适合横切行为：tooltip、菜单、焦点陷阱，避免巨型基类继承。
+
+
+### 对应源码 · hostDirectives
+
+```typescript
+@Directive({ selector: '[appTooltip]', standalone: true })
+export class TooltipDirective {
+  text = input('');
+}
+
+@Component({
+  standalone: true,
+  selector: 'app-help-btn',
+  hostDirectives: [
+    { directive: TooltipDirective, inputs: ['text: tooltip'] },
+  ],
+  template: `<button>帮助</button>`,
+})
+export class HelpBtnComponent {}
+// <app-help-btn tooltip="说明" />
+```
+
+
+**交互 Demo：** 动手：组合行为（kind: `host-dir`）
+
+
+> **提示：** 官网：directive-composition-api。注意 host 指令的注入器与导出语义。
+
+
+**测验：**
+- Q: 声明式挂载指令？
+  - [✓] hostDirectives
+  - [ ] NgModule only
+  - [ ] eval
+  - [ ] CSS @import
+  - 解析: 组合 API。
+- Q: 适合场景？
+  - [✓] 横切 UI 行为复用
+  - [ ] 替代路由
+  - [ ] 写 SQL
+  - [ ] DNS
+  - 解析: 行为复用。
+
+
+---
+
+## 自定义路由匹配
+
+- slug: `url-matcher`
+- level: 实战
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/url-matcher
+- summary: UrlMatcher 高级规则。
+
+### UrlMatcher
+
+当 path 字符串不够用：多段可选、文件扩展名、校验格式，可用自定义 matcher 函数返回消费的 UrlSegment 或 null。
+
+
+### 对应源码 · matcher
+
+```typescript
+export const digitMatcher: UrlMatcher = (segments) => {
+  if (segments.length === 1 && /^\d+$/.test(segments[0].path)) {
+    return { consumed: segments, posParams: { id: segments[0] } };
+  }
+  return null;
+};
+
+{ matcher: digitMatcher, component: ItemComponent }
+```
+
+
+> **提示：** 官网：routing-with-urlmatcher。优先标准 path/参数；matcher 留给特殊协议。
+
+
+**测验：**
+- Q: 自定义匹配？
+  - [✓] UrlMatcher
+  - [ ] RegexRoute 强制 Vue
+  - [ ] nginx only
+  - [ ] DNS
+  - 解析: matcher。
+- Q: 不匹配返回？
+  - [✓] null
+  - [ ] false 字符串
+  - [ ] throw 必须
+  - [ ] 0
+  - 解析: null。
+
+
+---
+
+## 增量 Hydration
+
+- slug: `incremental-hydration`
+- level: 实战
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/incremental-hydration
+- summary: 分块激活以提升 TTI。
+
+### Incremental hydration
+
+不必一次激活整页：用 @defer 等边界推迟 hydrate，用户交互或进入视口再激活，降低主线程压力。
+
+
+### 对应源码 · 思路
+
+```typescript
+@defer (hydrate on interaction) {
+  <app-comments />
+} @placeholder {
+  <p>评论区占位</p>
+}
+```
+
+
+**交互 Demo：** 动手：分阶段加载/激活（kind: `defer`）
+
+
+> **提示：** 官网：incremental-hydration。与 defer 触发器配合。
+
+
+**测验：**
+- Q: 增量 hydrate 目的？
+  - [✓] 降主线程/提升交互
+  - [ ] 增大包体
+  - [ ] 禁用缓存
+  - [ ] 删 CSS
+  - 解析: 性能。
+- Q: 常见边界？
+  - [✓] @defer
+  - [ ] 只有 index.html
+  - [ ] SQL
+  - [ ] DNS
+  - 解析: defer。
+
+
+---
+
+## 路由过渡动画
+
+- slug: `route-animations`
+- level: 进阶
+- minutes: 10
+- url: https://xiaoqianran.github.io/learning-angular/lesson/route-animations
+- summary: 页面切换动效。
+
+### Route animations
+
+在路由 data 标记动画状态，结合路由出口绑定动画触发器。现代更推荐 CSS 视图过渡；旧 animations 模块可迁移。
+
+
+### 对应源码 · data 标记
+
+```typescript
+{ path: 'home', component: Home, data: { animation: 'HomePage' } }
+{ path: 'about', component: About, data: { animation: 'AboutPage' } }
+
+// 模板 outlet 绑定动画触发器（概念）
+// [@routeAnimations]="prepareRoute(outlet)" 
+```
+
+
+> **提示：** 官网：route-transition-animations 与 CSS animations 迁移指南。prefers-reduced-motion！
+
+
+**测验：**
+- Q: 路由动画状态常放？
+  - [✓] route data
+  - [ ] localStorage
+  - [ ] DNS
+  - [ ] favicon
+  - 解析: data。
+- Q: 无障碍？
+  - [✓] reduced-motion
+  - [ ] 强制 5s
+  - [ ] 闪烁
+  - [ ] 自动声
+  - 解析: 尊重系统。
+
+
+---
+
+# Studio mock API
+
+演示账号：`demo@angular.dev` / `password123`
+闯关：登录 → 401 → 笔记 CRUD → 退出
+URL: https://xiaoqianran.github.io/learning-angular/studio

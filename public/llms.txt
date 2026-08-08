@@ -1,100 +1,125 @@
 # learning-angular
 
-交互式中文 Angular 学习站（75 课 + Demo + 测验 + 工坊）。
-对齐官方 https://angular.dev/llms.txt 主路径；权威 API 以官网为准。
+> 交互式中文 Angular 教程：课程 + 源码 + Demo + 测验 + 全栈工坊。对齐 [angular.dev/llms.txt](https://angular.dev/llms.txt) 主路径；权威 API 以官网为准。
 
-## Site
+完整上下文（全文）：[https://xiaoqianran.github.io/learning-angular/llms-full.txt](https://xiaoqianran.github.io/learning-angular/llms-full.txt)
 
-- [首页](/learning-angular/)
-- [文档地图](/learning-angular/docs)
-- [演练场](/learning-angular/playground)
-- [全栈工坊](/learning-angular/studio)
-- [速查表](/learning-angular/cheatsheet)
+## 站点入口
 
-## Lessons (75)
+- [首页大纲](https://xiaoqianran.github.io/learning-angular/): 搜索、路径筛选、学习进度
+- [文档地图](https://xiaoqianran.github.io/learning-angular/docs): 官方文档 ⇄ 本站课
+- [代码演练场](https://xiaoqianran.github.io/learning-angular/playground): 示例源码 + 预览
+- [全栈工坊](https://xiaoqianran.github.io/learning-angular/studio): 模拟 REST 闯关
+- [速查表](https://xiaoqianran.github.io/learning-angular/cheatsheet): API 与 Vue→Angular 对照
+- [学习中心](https://xiaoqianran.github.io/learning-angular/hub): 打卡 / 收藏 / 错题
+- [练习场](https://xiaoqianran.github.io/learning-angular/lab): 随机测验
+- [结业证明](https://xiaoqianran.github.io/learning-angular/certificate): 完成后解锁
 
-- intro
-- template
-- reactivity
-- computed
-- list-render
-- events
-- forms
-- components
-- props-emits
-- lifecycle
-- composition
-- router
-- pinia
-- pitfalls
-- project
-- slots
-- provide-inject
-- async-data
-- route-guards
-- form-validate
-- rest-api
-- auth-token
-- nuxt-map
-- capstone
-- angular-ts
-- api-client
-- testing-vue
-- deploy-prod
-- teleport
-- keep-alive
-- custom-directive
-- perf-patterns
-- interview-vue
-- install-cli
-- selectors-styling
-- model-inputs
-- template-let
-- defer-loading
-- linked-signal
-- resource-api
-- pipes
-- rxjs-interop
-- signal-forms
-- zoneless
-- ssr-hydration
-- security
-- i18n
-- animations-css
-- style-guide
-- structural-directives
-- directive-composition
-- image-optimization
-- queries
-- injection-context
-- lazy-services
-- lightweight-tokens
-- http-setup
-- http-requests
-- typed-forms
-- dynamic-forms
-- template-refs
-- expression-syntax
-- aria-a11y
-- route-outlets
-- navigate-state
-- url-matcher
-- hybrid-rendering
-- incremental-hydration
-- testing-deep
-- component-harness
-- route-animations
-- errors-diagnostics
-- update-angular
-- change-detection
-- host-bindings
+## 课程 · 基础
 
-## Official
+- [Angular 是什么](https://xiaoqianran.github.io/learning-angular/lesson/intro): 平台级框架、组件与信号。（入门 · 6 分钟）
+- [模板语法](https://xiaoqianran.github.io/learning-angular/lesson/template): 插值、属性与事件绑定。（入门 · 8 分钟）
+- [响应式：Signals](https://xiaoqianran.github.io/learning-angular/lesson/reactivity): signal / model / linkedSignal。（入门 · 10 分钟）
+- [计算属性与 effect](https://xiaoqianran.github.io/learning-angular/lesson/computed): computed / effect。（入门 · 10 分钟）
+- [条件与列表渲染](https://xiaoqianran.github.io/learning-angular/lesson/list-render): @if / @for / track。（入门 · 10 分钟）
+- [事件处理](https://xiaoqianran.github.io/learning-angular/lesson/events): (click) 与 $event。（入门 · 8 分钟）
+- [表单与 ngModel](https://xiaoqianran.github.io/learning-angular/lesson/forms): 模板驱动表单入门。（入门 · 10 分钟）
+- [组件基础](https://xiaoqianran.github.io/learning-angular/lesson/components): Standalone 组件与选择器。（入门 · 10 分钟）
+- [Input 与 Output](https://xiaoqianran.github.io/learning-angular/lesson/props-emits): input() / output()。（入门 · 10 分钟）
+- [生命周期](https://xiaoqianran.github.io/learning-angular/lesson/lifecycle): ngOnInit / destroy 钩子。（入门 · 8 分钟）
+- [组合逻辑实践](https://xiaoqianran.github.io/learning-angular/lesson/composition): 服务、inject、可复用逻辑。（入门 · 12 分钟）
+- [安装与 Angular CLI](https://xiaoqianran.github.io/learning-angular/lesson/install-cli): ng new、工作区结构与本地开发。（入门 · 10 分钟）
+- [选择器与样式封装](https://xiaoqianran.github.io/learning-angular/lesson/selectors-styling): selector 约定与 ViewEncapsulation。（入门 · 10 分钟）
+- [管道 Pipes](https://xiaoqianran.github.io/learning-angular/lesson/pipes): 纯变换与自定义管道。（入门 · 10 分钟）
+- [模板引用变量](https://xiaoqianran.github.io/learning-angular/lesson/template-refs): #ref 与查询配合。（入门 · 8 分钟）
+- [模板表达式语法](https://xiaoqianran.github.io/learning-angular/lesson/expression-syntax): 允许的运算符与限制。（入门 · 8 分钟）
 
-- https://angular.dev/llms.txt
-- https://angular.dev/assets/context/llms-full.txt
-- https://angular.dev/ai/develop-with-ai
+## 课程 · 进阶
 
-## Repo
+- [Angular Router](https://xiaoqianran.github.io/learning-angular/lesson/router): 路由表、参数与导航。（进阶 · 12 分钟）
+- [状态管理](https://xiaoqianran.github.io/learning-angular/lesson/pinia): 服务 + Signals / NgRx 心智。（进阶 · 12 分钟）
+- [常见坑与性能](https://xiaoqianran.github.io/learning-angular/lesson/pitfalls): 变更检测、异步管道、内存泄漏。（进阶 · 12 分钟）
+- [从零搭一个小项目](https://xiaoqianran.github.io/learning-angular/lesson/project): CLI 脚手架与目录。（进阶 · 14 分钟）
+- [model() 双向输入](https://xiaoqianran.github.io/learning-angular/lesson/model-inputs): 可写 input，简化双向绑定。（进阶 · 10 分钟）
+- [模板变量 @let](https://xiaoqianran.github.io/learning-angular/lesson/template-let): 模板内声明局部变量。（进阶 · 8 分钟）
+- [RxJS 与 Signals 互通](https://xiaoqianran.github.io/learning-angular/lesson/rxjs-interop): toSignal / toObservable。（进阶 · 10 分钟）
+- [结构型指令](https://xiaoqianran.github.io/learning-angular/lesson/structural-directives): 自定义 * 语法与微语法。（进阶 · 12 分钟）
+- [视图查询 viewChild](https://xiaoqianran.github.io/learning-angular/lesson/queries): 查询子组件与模板引用。（进阶 · 10 分钟）
+- [注入上下文](https://xiaoqianran.github.io/learning-angular/lesson/injection-context): inject() 能在哪里调用。（进阶 · 10 分钟）
+- [路由出口 outlet](https://xiaoqianran.github.io/learning-angular/lesson/route-outlets): 主出口与命名出口。（进阶 · 10 分钟）
+- [导航与路由状态](https://xiaoqianran.github.io/learning-angular/lesson/navigate-state): Router 与 ActivatedRoute。（入门 · 10 分钟）
+- [变更检测深入](https://xiaoqianran.github.io/learning-angular/lesson/change-detection): 默认策略与 OnPush。（进阶 · 12 分钟）
+- [Host 绑定与监听](https://xiaoqianran.github.io/learning-angular/lesson/host-bindings): host 中的 class/style/事件。（进阶 · 8 分钟）
 
-- https://github.com/xiaoqianran/learning-angular
+## 课程 · 全栈准备
+
+- [内容投影](https://xiaoqianran.github.io/learning-angular/lesson/slots): ng-content 与多槽。（进阶 · 10 分钟）
+- [依赖注入进阶](https://xiaoqianran.github.io/learning-angular/lesson/provide-inject): InjectionToken 与层级。（进阶 · 10 分钟）
+- [异步数据与请求态](https://xiaoqianran.github.io/learning-angular/lesson/async-data): HttpClient 与 loading 三态。（进阶 · 12 分钟）
+- [路由守卫与鉴权心智](https://xiaoqianran.github.io/learning-angular/lesson/route-guards): CanActivateFn 等。（进阶 · 10 分钟）
+- [表单校验](https://xiaoqianran.github.io/learning-angular/lesson/form-validate): Validators 与错误展示。（进阶 · 12 分钟）
+- [服务懒加载](https://xiaoqianran.github.io/learning-angular/lesson/lazy-services): 路由级 providers 与拆包。（进阶 · 10 分钟）
+- [配置 HttpClient](https://xiaoqianran.github.io/learning-angular/lesson/http-setup): provideHttpClient 与功能。（入门 · 8 分钟）
+- [发起 HTTP 请求](https://xiaoqianran.github.io/learning-angular/lesson/http-requests): 动词、类型与观察结果。（入门 · 10 分钟）
+- [动态表单](https://xiaoqianran.github.io/learning-angular/lesson/dynamic-forms): 配置驱动生成控件。（实战 · 12 分钟）
+
+## 课程 · 全栈实训
+
+- [REST API 与 CRUD](https://xiaoqianran.github.io/learning-angular/lesson/rest-api): 资源与动词。（实战 · 12 分钟）
+- [Token 登录与会话](https://xiaoqianran.github.io/learning-angular/lesson/auth-token): Bearer 与拦截器。（实战 · 12 分钟）
+- [全栈与 SSR 地图](https://xiaoqianran.github.io/learning-angular/lesson/nuxt-map): Angular SSR / Analog / 后端边界。（实战 · 10 分钟）
+- [毕业作品清单](https://xiaoqianran.github.io/learning-angular/lesson/capstone): 做出可演示的全栈小应用。（实战 · 10 分钟）
+- [SSR 与 Hydration](https://xiaoqianran.github.io/learning-angular/lesson/ssr-hydration): 服务端渲染与增量激活。（实战 · 12 分钟）
+- [混合渲染策略](https://xiaoqianran.github.io/learning-angular/lesson/hybrid-rendering): 按路由 SSR/CSR。（实战 · 12 分钟）
+
+## 课程 · 工程化
+
+- [Angular 与 TypeScript](https://xiaoqianran.github.io/learning-angular/lesson/angular-ts): 类型化组件与表单。（进阶 · 10 分钟）
+- [封装 API 客户端](https://xiaoqianran.github.io/learning-angular/lesson/api-client): 统一 baseURL / 错误 / Token。（进阶 · 10 分钟）
+- [测试入门](https://xiaoqianran.github.io/learning-angular/lesson/testing-vue): TestBed 与组件测试。（进阶 · 12 分钟）
+- [生产部署清单](https://xiaoqianran.github.io/learning-angular/lesson/deploy-prod): build、环境、SPA fallback。（进阶 · 10 分钟）
+- [安全最佳实践](https://xiaoqianran.github.io/learning-angular/lesson/security): XSS、消毒与信任策略。（实战 · 10 分钟）
+- [国际化 i18n](https://xiaoqianran.github.io/learning-angular/lesson/i18n): 多语言与本地化。（进阶 · 10 分钟）
+- [官方风格指南精华](https://xiaoqianran.github.io/learning-angular/lesson/style-guide): 命名、结构、inject 偏好。（进阶 · 10 分钟）
+- [NgOptimizedImage](https://xiaoqianran.github.io/learning-angular/lesson/image-optimization): 图片性能与 loader。（进阶 · 10 分钟）
+- [轻量 InjectionToken](https://xiaoqianran.github.io/learning-angular/lesson/lightweight-tokens): 优化库的 token 设计。（实战 · 8 分钟）
+- [严格类型表单](https://xiaoqianran.github.io/learning-angular/lesson/typed-forms): NonNullable 与类型推断。（进阶 · 10 分钟）
+- [无障碍与 ARIA](https://xiaoqianran.github.io/learning-angular/lesson/aria-a11y): 可访问组件基础。（进阶 · 10 分钟）
+- [测试深入](https://xiaoqianran.github.io/learning-angular/lesson/testing-deep): 服务、组件场景与覆盖率。（进阶 · 12 分钟）
+- [Component Harness](https://xiaoqianran.github.io/learning-angular/lesson/component-harness): 稳定的组件测试 API。（实战 · 12 分钟）
+- [错误与扩展诊断](https://xiaoqianran.github.io/learning-angular/lesson/errors-diagnostics): NG 错误码与编译诊断。（进阶 · 10 分钟）
+- [升级与版本更新](https://xiaoqianran.github.io/learning-angular/lesson/update-angular): ng update 与兼容。（进阶 · 8 分钟）
+
+## 课程 · 进阶模式
+
+- [CDK Overlay 与传送](https://xiaoqianran.github.io/learning-angular/lesson/teleport): 弹层挂到 body。（实战 · 10 分钟）
+- [路由复用缓存](https://xiaoqianran.github.io/learning-angular/lesson/keep-alive): RouteReuseStrategy。（实战 · 10 分钟）
+- [自定义指令](https://xiaoqianran.github.io/learning-angular/lesson/custom-directive): Attribute Directive。（实战 · 10 分钟）
+- [性能模式](https://xiaoqianran.github.io/learning-angular/lesson/perf-patterns): OnPush、track、懒加载。（实战 · 12 分钟）
+- [面试高频串讲](https://xiaoqianran.github.io/learning-angular/lesson/interview-vue): DI、变更检测、Signals 一口说清。（实战 · 14 分钟）
+- [@defer 延迟加载](https://xiaoqianran.github.io/learning-angular/lesson/defer-loading): 按需加载组件与依赖。（进阶 · 12 分钟）
+- [linkedSignal 联动状态](https://xiaoqianran.github.io/learning-angular/lesson/linked-signal): 依赖其他状态的可写信号。（进阶 · 10 分钟）
+- [resource 与 httpResource](https://xiaoqianran.github.io/learning-angular/lesson/resource-api): 异步资源的信号式状态。（进阶 · 12 分钟）
+- [Signal Forms 入门](https://xiaoqianran.github.io/learning-angular/lesson/signal-forms): 以信号为中心的新型表单。（进阶 · 12 分钟）
+- [Zoneless 变更检测](https://xiaoqianran.github.io/learning-angular/lesson/zoneless): 去掉 ZoneJS 的现代路径。（实战 · 12 分钟）
+- [动画与路由过渡](https://xiaoqianran.github.io/learning-angular/lesson/animations-css): CSS 动画与路由转场。（进阶 · 10 分钟）
+- [指令组合 API](https://xiaoqianran.github.io/learning-angular/lesson/directive-composition): hostDirectives 复用行为。（进阶 · 12 分钟）
+- [自定义路由匹配](https://xiaoqianran.github.io/learning-angular/lesson/url-matcher): UrlMatcher 高级规则。（实战 · 10 分钟）
+- [增量 Hydration](https://xiaoqianran.github.io/learning-angular/lesson/incremental-hydration): 分块激活以提升 TTI。（实战 · 10 分钟）
+- [路由过渡动画](https://xiaoqianran.github.io/learning-angular/lesson/route-animations): 页面切换动效。（进阶 · 10 分钟）
+
+## 官方 Angular（权威）
+
+- [angular.dev/llms.txt](https://angular.dev/llms.txt): 官方文档索引
+- [angular.dev llms-full.txt](https://angular.dev/assets/context/llms-full.txt): 官方完整上下文
+- [Develop with AI](https://angular.dev/ai/develop-with-ai)
+
+## 可选
+
+- [GitHub 仓库](https://github.com/xiaoqianran/learning-angular)
+- [姊妹项目 learning-vue3](https://github.com/xiaoqianran/learning-vue3)
+
+## 给工具的提示
+
+- 生成代码时优先：Standalone、`signal`/`computed`/`input`/`output`、`inject()`、`provideHttpClient`、`@if`/`@for`。
+- 不要默认生成 NgModule 旧风格，除非用户明确要求。

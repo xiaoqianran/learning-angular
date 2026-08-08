@@ -116,3 +116,22 @@ GitHub Pages 静态构建会设置 `GITHUB_PAGES=true`，`base` 为 `/learning-a
 
 - 姊妹项目：[learning-vue3](https://github.com/xiaoqianran/learning-vue3)
 - Angular 官方文档：[https://angular.dev/](https://angular.dev/)
+
+## LLM 文件（llms.txt）
+
+本站按 [llms.txt 提案](https://llmstxt.org/) 与 Angular 官网双文件模式发布：
+
+| 文件 | 线上地址 | 内容 |
+|------|----------|------|
+| `llms.txt` | https://xiaoqianran.github.io/learning-angular/llms.txt | 索引：站点入口 + 全部课程链接 |
+| `llms-full.txt` | https://xiaoqianran.github.io/learning-angular/llms-full.txt | 全文：全部课程正文/源码/测验 |
+
+**如何生成与发布：**
+
+1. 课程写在 `src/data/lessons.ts`
+2. 本地/CI 运行 `npm run llms`（或 `build:pages` 内自动执行）→ 写入 `public/llms.txt` 与 `public/llms-full.txt`
+3. Vite 把 `public/` 原样拷进构建产物
+4. GitHub Actions `Deploy to GitHub Pages` 上传产物 → 固定 URL 可访问
+
+Cursor / ChatGPT 等可把 `llms-full.txt` 当作项目上下文；权威 API 仍以 [angular.dev/llms.txt](https://angular.dev/llms.txt) 为准。
+

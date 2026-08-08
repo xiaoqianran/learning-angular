@@ -7,6 +7,9 @@ export const Route = createFileRoute("/docs")({
 });
 
 function DocsMapPage() {
+  const base = (import.meta.env.BASE_URL || "/").replace(/\/$/, "");
+  const llms = `${base}/llms.txt`;
+  const llmsFull = `${base}/llms-full.txt`;
   return (
     <div className="mx-auto max-w-3xl pb-16">
       <header className="mb-6">
@@ -31,13 +34,22 @@ function DocsMapPage() {
         </p>
       </header>
 
-      <div className="mb-6 rounded-xl border border-border bg-surface-2 px-4 py-3 text-xs leading-relaxed text-muted">
-        官方 AI 资源：
-        <a className="mx-1 text-primary hover:underline" href="https://angular.dev/llms.txt" target="_blank" rel="noreferrer">llms.txt</a>
-        ·
-        <a className="mx-1 text-primary hover:underline" href="https://angular.dev/assets/context/llms-full.txt" target="_blank" rel="noreferrer">llms-full.txt</a>
-        ·
-        <a className="mx-1 text-primary hover:underline" href="https://angular.dev/ai" target="_blank" rel="noreferrer">Build with AI</a>
+      <div className="mb-6 space-y-3 rounded-xl border border-border bg-surface-2 px-4 py-3 text-xs leading-relaxed text-muted">
+        <p>
+          <span className="font-medium text-fg">本站 LLM 文件（已发布）：</span>
+          <a className="mx-1 text-primary hover:underline" href={llms} target="_blank" rel="noreferrer">llms.txt</a>
+          ·
+          <a className="mx-1 text-primary hover:underline" href={llmsFull} target="_blank" rel="noreferrer">llms-full.txt</a>
+          <span className="text-subtle"> — 构建时从课程自动生成，GitHub Pages 静态托管</span>
+        </p>
+        <p>
+          官方 AI 资源：
+          <a className="mx-1 text-primary hover:underline" href="https://angular.dev/llms.txt" target="_blank" rel="noreferrer">angular.dev/llms.txt</a>
+          ·
+          <a className="mx-1 text-primary hover:underline" href="https://angular.dev/assets/context/llms-full.txt" target="_blank" rel="noreferrer">llms-full.txt</a>
+          ·
+          <a className="mx-1 text-primary hover:underline" href="https://angular.dev/ai" target="_blank" rel="noreferrer">Build with AI</a>
+        </p>
       </div>
 
       <div className="grid gap-4">
