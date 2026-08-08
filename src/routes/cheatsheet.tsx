@@ -32,6 +32,18 @@ const SECTIONS: { title: string; items: { k: string; v: string }[] }[] = [
     ],
   },
   {
+    title: "现代 API（对齐官网）",
+    items: [
+      { k: "model()", v: "可写 input · 父级 [(x)]" },
+      { k: "@let", v: "模板局部变量" },
+      { k: "@defer", v: "懒加载 · placeholder/loading/error" },
+      { k: "resource / httpResource", v: "异步资源信号状态机" },
+      { k: "provideZonelessChangeDetection", v: "无 ZoneJS" },
+      { k: "toSignal / toObservable", v: "RxJS ↔ Signals" },
+      { k: "ViewEncapsulation", v: "Emulated 默认" },
+    ],
+  },
+  {
     title: "模板",
     items: [
       { k: "{{ }}", v: "文本插值" },

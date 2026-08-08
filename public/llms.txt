@@ -1,0 +1,33 @@
+# learning-angular
+
+交互式中文 Angular 学习站（课程 + Demo + 测验 + 工坊）。姊妹项目 learning-vue3。
+
+> 权威 API 与完整规范以官方为准：https://angular.dev/llms.txt
+
+## Site
+
+- [首页课程大纲](/learning-angular/)
+- [文档地图（对照官网）](/learning-angular/docs)
+- [代码演练场](/learning-angular/playground)
+- [全栈工坊](/learning-angular/studio)
+- [速查表](/learning-angular/cheatsheet)
+- [学习中心](/learning-angular/hub)
+
+## Curriculum tracks
+
+- 基础：intro, install-cli, template, reactivity, computed, list-render, events, forms, components, props-emits, lifecycle, composition, pipes, selectors-styling
+- 进阶：router, pinia, pitfalls, project, model-inputs, template-let, rxjs-interop
+- 全栈准备：slots, provide-inject, async-data, route-guards, form-validate
+- 全栈实训：rest-api, auth-token, nuxt-map, capstone, ssr-hydration
+- 工程化：angular-ts, api-client, testing-vue, deploy-prod, security, i18n, style-guide
+- 进阶模式：teleport, keep-alive, custom-directive, perf-patterns, interview-vue, defer-loading, linked-signal, resource-api, signal-forms, zoneless, animations-css
+
+## Official Angular LLM context
+
+- https://angular.dev/llms.txt
+- https://angular.dev/assets/context/llms-full.txt
+- https://angular.dev/ai/develop-with-ai
+
+## Repo
+
+- https://github.com/xiaoqianran/learning-angular

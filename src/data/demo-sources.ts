@@ -112,6 +112,43 @@ const SOURCES: Record<DemoKind, DemoSource> = {
     "lang": "typescript",
     "code": "@Directive({ selector: '[appHighlight]', standalone: true })\nexport class HighlightDirective {\n  private el = inject(ElementRef);\n  @HostListener('mouseenter') onEnter() {\n    this.el.nativeElement.style.background = '#dd003133';\n  }\n}"
   }
+,
+  "defer": {
+    "title": "@defer 阶段",
+    "lang": "html",
+    "code": "@defer (on interaction) {\n  <app-heavy />\n} @placeholder {\n  <p>占位</p>\n} @loading {\n  <p>加载中</p>\n} @error {\n  <p>失败</p>\n}"
+  },
+  "pipe": {
+    "title": "Pipe",
+    "lang": "typescript",
+    "code": "@Pipe({ name: 'truncate', standalone: true })\nexport class TruncatePipe implements PipeTransform {\n  transform(value: string, max = 12) {\n    return value.length <= max ? value : value.slice(0, max) + '…';\n  }\n}"
+  },
+  "resource": {
+    "title": "httpResource",
+    "lang": "typescript",
+    "code": "userId = signal('1');\nuser = httpResource(() => `/api/users/${this.userId()}`);\n// user.isLoading() / user.value() / user.error()"
+  },
+  "linked": {
+    "title": "linkedSignal",
+    "lang": "typescript",
+    "code": "options = signal(['标准','加急','自提']);\nselected = linkedSignal(() => this.options()[0]);"
+  },
+  "model-input": {
+    "title": "model()",
+    "lang": "typescript",
+    "code": "on = model(false);\n// 父：<app-toggle [(on)]=\"enabled\" />"
+  },
+  "zoneless": {
+    "title": "Zoneless",
+    "lang": "typescript",
+    "code": "bootstrapApplication(App, {\n  providers: [provideZonelessChangeDetection()],\n});"
+  },
+  "style-encap": {
+    "title": "ViewEncapsulation",
+    "lang": "typescript",
+    "code": "@Component({\n  encapsulation: ViewEncapsulation.Emulated,\n  styles: [`:host { display:block } .x { color: red }`],\n})"
+  }
+
 };
 
 export function getDemoSource(kind: DemoKind): DemoSource {

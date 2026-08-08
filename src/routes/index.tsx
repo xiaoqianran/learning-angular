@@ -66,7 +66,7 @@ function HomePage() {
           <div className="flex flex-wrap items-center gap-2">
             <p className="inline-flex items-center gap-1.5 rounded-full border border-border bg-bg/60 px-2.5 py-1 text-xs font-medium text-primary">
               <Sparkles className="h-3.5 w-3.5" />
-              v1 · Signals & 全栈
+              v2 · 对齐官网 llms.txt
             </p>
             {streak > 0 ? (
               <span className="rounded-full bg-surface-3 px-2.5 py-1 font-mono text-xs text-muted">
@@ -78,7 +78,7 @@ function HomePage() {
             带你系统学 Angular
           </h1>
           <p className="mt-3 max-w-xl text-base leading-relaxed text-muted">
-            v1：Standalone 组件、Signals、Router、DI、Reactive Forms、全栈工坊与速查表。
+            v2：对照 angular.dev/llms.txt 补齐 @defer、linkedSignal、resource、Zoneless、SSR、Signal Forms… 官方文档地图一键跳转。
           </p>
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <Link to="/studio" className="no-underline">
@@ -94,6 +94,11 @@ function HomePage() {
             >
               <Button size="lg" variant="secondary">
                 进阶模式
+              </Button>
+            </Link>
+            <Link to="/docs" className="no-underline">
+              <Button size="lg" variant="secondary">
+                文档地图
               </Button>
             </Link>
             <Link to="/cheatsheet" className="no-underline">

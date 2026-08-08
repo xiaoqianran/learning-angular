@@ -115,6 +115,20 @@ function DemoBody({ kind }: { kind: DemoKind }) {
       return <KeepAliveDemo />;
     case "directive":
       return <DirectiveDemo />;
+    case "defer":
+      return <DeferDemo />;
+    case "pipe":
+      return <PipeDemo />;
+    case "resource":
+      return <ResourceDemo />;
+    case "linked":
+      return <LinkedDemo />;
+    case "model-input":
+      return <ModelInputDemo />;
+    case "zoneless":
+      return <ZonelessDemo />;
+    case "style-encap":
+      return <StyleEncapDemo />;
     default:
       return null;
   }
@@ -1152,3 +1166,177 @@ function DirectiveDemo() {
     </div>
   );
 }
+
+
+function DeferDemo() {
+  const [phase, setPhase] = useState<"placeholder" | "loading" | "ready" | "error">("placeholder");
+  function load(ok: boolean) {
+    setPhase("loading");
+    window.setTimeout(() => setPhase(ok ? "ready" : "error"), 800);
+  }
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      <Panel label="触发">
+        <div className="flex flex-wrap gap-2">
+          <Button size="sm" onClick={() => load(true)}>on interaction · 成功</Button>
+          <Button size="sm" variant="secondary" onClick={() => load(false)}>模拟 @error</Button>
+          <Button size="sm" variant="ghost" onClick={() => setPhase("placeholder")}>重置</Button>
+        </div>
+        <p className="mt-2 font-mono text-xs text-muted">phase = {phase}</p>
+      </Panel>
+      <Panel label="@defer 视图">
+        {phase === "placeholder" ? <p className="text-sm text-muted">@placeholder · 占位内容</p> : null}
+        {phase === "loading" ? <p className="text-sm text-primary">@loading · 拉取懒 chunk…</p> : null}
+        {phase === "ready" ? (
+          <div className="rounded-md bg-bg p-3 text-sm">
+            <p className="font-medium text-primary">HeavyChart 已加载</p>
+            <p className="mt-1 text-muted">模拟懒组件渲染完成</p>
+          </div>
+        ) : null}
+        {phase === "error" ? <p className="text-sm text-danger">@error · 加载失败</p> : null}
+      </Panel>
+    </div>
+  );
+}
+
+function PipeDemo() {
+  const [text, setText] = useState("Angular Signals 实战非常有趣");
+  const [max, setMax] = useState(12);
+  const out = text.length <= max ? text : text.slice(0, max) + "…";
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      <Panel label="输入">
+        <input value={text} onChange={(e) => setText(e.target.value)} className="mb-2 h-10 w-full rounded-md border border-border bg-bg px-3 text-sm" />
+        <label className="text-xs text-muted">max = {max}</label>
+        <input type="range" min={4} max={40} value={max} onChange={(e) => setMax(Number(e.target.value))} className="mt-1 w-full" />
+      </Panel>
+      <Panel label={"{{ text | truncate:" + max + " }}"}>
+        <p className="font-mono text-lg text-primary">{out}</p>
+      </Panel>
+    </div>
+  );
+}
+
+function ResourceDemo() {
+  const [id, setId] = useState("1");
+  const [status, setStatus] = useState<"idle" | "loading" | "resolved" | "error">("idle");
+  const [value, setValue] = useState<string | null>(null);
+  function load() {
+    setStatus("loading");
+    setValue(null);
+    window.setTimeout(() => {
+      if (id === "0") {
+        setStatus("error");
+        return;
+      }
+      setValue(`User#${id} · Ada`);
+      setStatus("resolved");
+    }, 600);
+  }
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      <Panel label="httpResource 参数">
+        <input value={id} onChange={(e) => setId(e.target.value)} className="mb-2 h-10 w-full rounded-md border border-border bg-bg px-3 text-sm" />
+        <Button size="sm" onClick={load}>reload()</Button>
+        <p className="mt-2 text-xs text-muted">id=0 模拟 error</p>
+      </Panel>
+      <Panel label="resource 状态">
+        <p className="font-mono text-xs text-muted">status = {status}</p>
+        {status === "loading" ? <p className="mt-2 text-sm text-primary">isLoading</p> : null}
+        {status === "error" ? <p className="mt-2 text-sm text-danger">error</p> : null}
+        {status === "resolved" ? <p className="mt-2 text-sm text-primary">{value}</p> : null}
+      </Panel>
+    </div>
+  );
+}
+
+function LinkedDemo() {
+  const [options, setOptions] = useState(["标准", "加急", "自提"]);
+  const [selected, setSelected] = useState("标准");
+  function changeSource() {
+    const next = options[0] === "标准" ? ["空运", "海运"] : ["标准", "加急", "自提"];
+    setOptions(next);
+    setSelected(next[0]);
+  }
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      <Panel label="源 options">
+        <p className="text-sm text-muted">{options.join(" / ")}</p>
+        <Button size="sm" className="mt-2" onClick={changeSource}>切换选项列表</Button>
+      </Panel>
+      <Panel label="linkedSignal selected">
+        <div className="flex flex-wrap gap-2">
+          {options.map((o) => (
+            <Button key={o} size="sm" variant={selected === o ? "default" : "secondary"} onClick={() => setSelected(o)}>
+              {o}
+            </Button>
+          ))}
+        </div>
+        <p className="mt-2 text-sm">当前：<span className="text-primary">{selected}</span></p>
+      </Panel>
+    </div>
+  );
+}
+
+function ModelInputDemo() {
+  const [enabled, setEnabled] = useState(false);
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      <Panel label="父组件 enabled">
+        <p className="font-mono text-2xl text-primary">{String(enabled)}</p>
+        <Button size="sm" className="mt-2" onClick={() => setEnabled((v) => !v)}>父级切换</Button>
+      </Panel>
+      <Panel label="子 model() · [(on)]">
+        <button
+          type="button"
+          onClick={() => setEnabled((v) => !v)}
+          className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-fg"
+        >
+          {enabled ? "ON" : "OFF"}
+        </button>
+        <p className="mt-2 text-xs text-muted">点击子按钮同样写回父状态</p>
+      </Panel>
+    </div>
+  );
+}
+
+function ZonelessDemo() {
+  const [n, setN] = useState(0);
+  const [ticks, setTicks] = useState(0);
+  useEffect(() => {
+    const id = window.setInterval(() => setTicks((t) => t + 1), 1000);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      <Panel label="粗粒度（类 Zone 直觉）">
+        <p className="text-sm text-muted">定时器一直跑：{ticks}s</p>
+        <p className="mt-1 text-xs text-subtle">Zone 可能因任意异步触发检查</p>
+      </Panel>
+      <Panel label="精确（Signals / Zoneless）">
+        <p className="font-mono text-3xl text-primary">{n}</p>
+        <Button size="sm" className="mt-2" onClick={() => setN((x) => x + 1)}>仅在 set 时更新</Button>
+      </Panel>
+    </div>
+  );
+}
+
+function StyleEncapDemo() {
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      <Panel label="Emulated（默认）">
+        <div className="rounded-md border border-primary/40 bg-primary-soft p-3 text-sm text-primary">
+          组件内 .btn 只影响此范围
+        </div>
+        <p className="mt-2 text-xs text-muted">生成唯一属性选择器隔离样式</p>
+      </Panel>
+      <Panel label="None（全局）">
+        <div className="rounded-md border border-border bg-surface-3 p-3 text-sm text-muted">
+          样式可能泄漏到全应用
+        </div>
+        <p className="mt-2 text-xs text-muted">第三方主题才考虑，慎用</p>
+      </Panel>
+    </div>
+  );
+}
+

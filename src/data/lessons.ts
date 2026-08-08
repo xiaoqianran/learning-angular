@@ -27,7 +27,14 @@ export type DemoKind =
   | "validate"
   | "teleport"
   | "keepalive"
-  | "directive";
+  | "directive"
+  | "defer"
+  | "pipe"
+  | "resource"
+  | "linked"
+  | "model-input"
+  | "zoneless"
+  | "style-encap";
 
 export type LessonBlock =
   | { type: "text"; title?: string; body: string }
@@ -1926,6 +1933,702 @@ export const LESSONS: Lesson[] = [
       }
     ]
   }
+
+  ,
+  {
+    slug: "install-cli",
+    title: "安装与 Angular CLI",
+    summary: "ng new、工作区结构与本地开发。",
+    level: "入门",
+    track: "基础",
+    minutes: 10,
+    blocks: [
+      {
+        type: "text",
+        title: "官方安装路径",
+        body: "需要 Node LTS。创建项目：\nnpx @angular/cli@latest new my-app\ncd my-app && ng serve\n\nCLI 负责脚手架、生成组件、构建、测试与更新。生产构建：ng build。"
+      },
+      {
+        type: "code",
+        title: "对应源码 · 常用 CLI",
+        lang: "bash",
+        code: "ng new learning-app --defaults\nng generate component features/hello --standalone\nng generate service core/api\nng serve --port 4200\nng build --configuration production\nng update @angular/core @angular/cli"
+      },
+      {
+        type: "tip",
+        body: "官方文档：angular.dev/installation 与 angular.dev/tools/cli。本站侧重「概念 + 动手」，CLI 细节以官网为准。"
+      },
+      {
+        type: "quiz",
+        questions: [
+          {
+            id: "cli1",
+            question: "创建项目？",
+            options: ["ng new", "ng init", "npm create-angular", "angular create"],
+            answer: 0,
+            explain: "ng new。"
+          },
+          {
+            id: "cli2",
+            question: "生成组件？",
+            options: ["ng generate component", "ng add component", "ng make", "ng scaffold"],
+            answer: 0,
+            explain: "ng g c 亦可。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    slug: "selectors-styling",
+    title: "选择器与样式封装",
+    summary: "selector 约定与 ViewEncapsulation。",
+    level: "入门",
+    track: "基础",
+    minutes: 10,
+    blocks: [
+      {
+        type: "text",
+        title: "选择器",
+        body: "组件常用元素选择器 app-user-card；指令常用属性选择器 [appHighlight]。加应用前缀避免冲突。:not、组合选择器可用于精细匹配。"
+      },
+      {
+        type: "text",
+        title: "样式封装",
+        body: "默认 ViewEncapsulation.Emulated：样式只作用于组件模板。ShadowDom 用原生 shadow root；None 则全局泄漏。优先 Emulated；第三方全局样式放 styles.css。"
+      },
+      {
+        type: "code",
+        title: "对应源码 · 封装模式",
+        lang: "typescript",
+        code: "@Component({\n  selector: 'app-badge',\n  standalone: true,\n  encapsulation: ViewEncapsulation.Emulated, // 默认\n  styles: [`:host { display: inline-flex; } .dot { color: #dd0031; }`],\n  template: `<span class=\"dot\">●</span><ng-content />`,\n})\nexport class BadgeComponent {}"
+      },
+      { type: "demo", kind: "style-encap", title: "动手：封装对比" },
+      {
+        type: "quiz",
+        questions: [
+          {
+            id: "ss1",
+            question: "默认封装？",
+            options: ["Emulated", "None", "ShadowDom 强制", "无封装"],
+            answer: 0,
+            explain: "Emulated。"
+          },
+          {
+            id: "ss2",
+            question: "指令选择器常见？",
+            options: ["[appX]", "app-x 元素强制", "#id", ".class only"],
+            answer: 0,
+            explain: "属性选择器。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    slug: "model-inputs",
+    title: "model() 双向输入",
+    summary: "可写 input，简化双向绑定。",
+    level: "进阶",
+    track: "进阶",
+    minutes: 10,
+    blocks: [
+      {
+        type: "text",
+        title: "model input",
+        body: "model() 创建可写信号型输入，父模板可用 [(value)] 双向绑定。适合可编辑状态；只读数据仍用 input()。"
+      },
+      {
+        type: "code",
+        title: "对应源码 · model",
+        lang: "typescript",
+        code: "@Component({\n  standalone: true,\n  selector: 'app-toggle',\n  template: `<button (click)=\"on.set(!on())\">{{ on() ? 'ON' : 'OFF' }}</button>`,\n})\nexport class ToggleComponent {\n  on = model(false);\n}\n\n// 父级：\n// <app-toggle [(on)]=\"enabled\" />"
+      },
+      { type: "demo", kind: "model-input", title: "动手：model 双向" },
+      {
+        type: "quiz",
+        questions: [
+          {
+            id: "mi1",
+            question: "双向输入 API？",
+            options: ["model()", "input.only", "output.twoWay", "ngModel 强制"],
+            answer: 0,
+            explain: "model()。"
+          },
+          {
+            id: "mi2",
+            question: "只读数据？",
+            options: ["input()", "model 必须", "signal 全局", "window"],
+            answer: 0,
+            explain: "input 只读。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    slug: "template-let",
+    title: "模板变量 @let",
+    summary: "模板内声明局部变量。",
+    level: "进阶",
+    track: "进阶",
+    minutes: 8,
+    blocks: [
+      {
+        type: "text",
+        title: "@let",
+        body: "@let name = expr; 在模板声明局部变量，避免重复写长表达式。不提升到父级；作用域与控制流块相关。也可配合 signal：@let v = count()。"
+      },
+      {
+        type: "code",
+        title: "对应源码 · @let",
+        lang: "html",
+        code: "@let full = first() + ' ' + last();\n<p>{{ full }}</p>\n\n@if (user(); as u) {\n  @let label = u.name + ' · ' + u.role;\n  <p>{{ label }}</p>\n}"
+      },
+      {
+        type: "tip",
+        body: "官网 Templates → Variables。复杂派生仍优先放 computed，模板保持薄。"
+      },
+      {
+        type: "quiz",
+        questions: [
+          {
+            id: "tl1",
+            question: "模板声明局部变量？",
+            options: ["@let", "var", "const 在 html", "let-"],
+            answer: 0,
+            explain: "@let。"
+          },
+          {
+            id: "tl2",
+            question: "@let 是否提升到父级？",
+            options: ["否", "是全局", "仅 SSR", "仅模块模式"],
+            answer: 0,
+            explain: "不提升。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    slug: "defer-loading",
+    title: "@defer 延迟加载",
+    summary: "按需加载组件与依赖。",
+    level: "进阶",
+    track: "进阶模式",
+    minutes: 12,
+    blocks: [
+      {
+        type: "text",
+        title: "为什么 @defer",
+        body: "@defer 把重型组件及其依赖拆到懒 chunk，用 trigger 控制何时加载：viewport、interaction、idle、timer、when 条件等。可配 @placeholder / @loading / @error，以及 prefetch。"
+      },
+      {
+        type: "code",
+        title: "对应源码 · @defer",
+        lang: "html",
+        code: "@defer (on viewport; prefetch on idle) {\n  <app-heavy-chart [data]=\"data()\" />\n} @placeholder {\n  <p>图表占位</p>\n} @loading (minimum 200ms) {\n  <p>加载中…</p>\n} @error {\n  <p>加载失败</p>\n}"
+      },
+      { type: "demo", kind: "defer", title: "动手：模拟 defer 阶段" },
+      {
+        type: "tip",
+        body: "避免嵌套 defer 造成瀑布请求；注意布局偏移与无障碍。SSR/SSG 下行为见官网 defer 指南。"
+      },
+      {
+        type: "quiz",
+        questions: [
+          {
+            id: "df1",
+            question: "进入视口再加载？",
+            options: ["on viewport", "on always", "on bootstrap", "on zone"],
+            answer: 0,
+            explain: "viewport trigger。"
+          },
+          {
+            id: "df2",
+            question: "失败分支？",
+            options: ["@error", "@catch", "@fail", "@else"],
+            answer: 0,
+            explain: "@error。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    slug: "linked-signal",
+    title: "linkedSignal 联动状态",
+    summary: "依赖其他状态的可写信号。",
+    level: "进阶",
+    track: "进阶模式",
+    minutes: 10,
+    blocks: [
+      {
+        type: "text",
+        title: "linkedSignal",
+        body: "当本地状态需要跟随源信号重置/派生，又允许用户改写时用 linkedSignal。例如选项列表变化时，选中项默认跟到第一项，用户仍可改选。"
+      },
+      {
+        type: "code",
+        title: "对应源码 · linkedSignal",
+        lang: "typescript",
+        code: "options = signal(['标准', '加急', '自提']);\nselected = linkedSignal(() => this.options()[0]);\n\n// 源变化 → selected 重算默认\n// 用户仍可 selected.set('加急')"
+      },
+      { type: "demo", kind: "linked", title: "动手：选项联动" },
+      {
+        type: "quiz",
+        questions: [
+          {
+            id: "ls1",
+            question: "可写且依赖源状态？",
+            options: ["linkedSignal", "仅 computed", "仅 effect", "FormControl"],
+            answer: 0,
+            explain: "linkedSignal。"
+          },
+          {
+            id: "ls2",
+            question: "纯只读派生？",
+            options: ["computed", "linkedSignal 必须", "model", "output"],
+            answer: 0,
+            explain: "computed。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    slug: "resource-api",
+    title: "resource 与 httpResource",
+    summary: "异步资源的信号式状态。",
+    level: "进阶",
+    track: "进阶模式",
+    minutes: 12,
+    blocks: [
+      {
+        type: "text",
+        title: "Resource API",
+        body: "resource 把异步加载建模为信号状态：value / status / error / isLoading / reload。httpResource 是基于 HttpClient 的封装，走拦截器栈，适合声明式请求。"
+      },
+      {
+        type: "code",
+        title: "对应源码 · httpResource 思路",
+        lang: "typescript",
+        code: "userId = signal('1');\nuser = httpResource(() => `/api/users/${this.userId()}`);\n\n// 模板\n// @if (user.isLoading()) { Loading }\n// @else if (user.error()) { Error }\n// @else { {{ user.value()?.name }} }"
+      },
+      { type: "demo", kind: "resource", title: "动手：资源三态" },
+      {
+        type: "tip",
+        body: "与手写 loading/error/data 相比，resource 统一状态机，减少样板代码。详见 angular.dev/guide/signals/resource 与 http-resource。"
+      },
+      {
+        type: "quiz",
+        questions: [
+          {
+            id: "rs1",
+            question: "HTTP 版 resource？",
+            options: ["httpResource", "fetchSignal", "ajax()", "HttpClient.only"],
+            answer: 0,
+            explain: "httpResource。"
+          },
+          {
+            id: "rs2",
+            question: "resource 典型状态？",
+            options: ["value/status/error", "仅 Promise", "仅 DOM", "仅 CSS"],
+            answer: 0,
+            explain: "信号状态机。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    slug: "pipes",
+    title: "管道 Pipes",
+    summary: "纯变换与自定义管道。",
+    level: "入门",
+    track: "基础",
+    minutes: 10,
+    blocks: [
+      {
+        type: "text",
+        title: "管道",
+        body: "模板中用 | 变换显示值：date、currency、json、async… 自定义管道实现 PipeTransform。纯管道可缓存；默认 pure: true。复杂逻辑优先在组件/ computed 完成。"
+      },
+      {
+        type: "code",
+        title: "对应源码 · 自定义管道",
+        lang: "typescript",
+        code: "@Pipe({ name: 'truncate', standalone: true })\nexport class TruncatePipe implements PipeTransform {\n  transform(value: string, max = 12): string {\n    return value.length <= max ? value : value.slice(0, max) + '…';\n  }\n}\n// 模板：{{ title | truncate:20 }}"
+      },
+      { type: "demo", kind: "pipe", title: "动手：管道变换" },
+      {
+        type: "quiz",
+        questions: [
+          {
+            id: "pp1",
+            question: "管道语法？",
+            options: ["value | pipe", "pipe(value)", "{{pipe value}}", "#pipe"],
+            answer: 0,
+            explain: "| 管道。"
+          },
+          {
+            id: "pp2",
+            question: "实现接口？",
+            options: ["PipeTransform", "OnInit", "CanActivate", "HttpInterceptor"],
+            answer: 0,
+            explain: "transform 方法。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    slug: "rxjs-interop",
+    title: "RxJS 与 Signals 互通",
+    summary: "toSignal / toObservable。",
+    level: "进阶",
+    track: "进阶",
+    minutes: 10,
+    blocks: [
+      {
+        type: "text",
+        title: "互通原则",
+        body: "UI 局部状态优先 signal；多事件流、组合、取消用 RxJS。toSignal(obs$) 进入信号世界；toObservable(sig) 进入流世界。outputToObservable 等见 rxjs-interop 包。"
+      },
+      {
+        type: "code",
+        title: "对应源码 · toSignal",
+        lang: "typescript",
+        code: "import { toSignal, toObservable } from '@angular/core/rxjs-interop';\n\nid$ = this.route.paramMap.pipe(map(p => p.get('id')!));\nid = toSignal(this.id$, { initialValue: '' });\n\nidChanges$ = toObservable(this.id);"
+      },
+      {
+        type: "tip",
+        body: "官网：angular.dev/ecosystem/rxjs-interop。不要在模板里订阅 Observable 却忘记 async 管道或 toSignal。"
+      },
+      {
+        type: "quiz",
+        questions: [
+          {
+            id: "rx1",
+            question: "Observable → Signal？",
+            options: ["toSignal", "toObservable", "async only 强制", "JSON.parse"],
+            answer: 0,
+            explain: "toSignal。"
+          },
+          {
+            id: "rx2",
+            question: "Signal → Observable？",
+            options: ["toObservable", "toSignal", "fromEvent only", "zone.run"],
+            answer: 0,
+            explain: "toObservable。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    slug: "signal-forms",
+    title: "Signal Forms 入门",
+    summary: "以信号为中心的新型表单。",
+    level: "进阶",
+    track: "进阶模式",
+    minutes: 12,
+    blocks: [
+      {
+        type: "text",
+        title: "Signal Forms",
+        body: "Angular 正在演进 Signal Forms：表单模型与校验更贴近 signals，减少与 RxJS/ControlValueAccessor 样板。现有 Reactive Forms 仍是生产主力；新项目关注官网 Signal Forms 指南。"
+      },
+      {
+        type: "code",
+        title: "对应源码 · 心智对照",
+        lang: "typescript",
+        code: "// 今日主力：Reactive Forms\nform = new FormGroup({\n  email: new FormControl('', { nonNullable: true, validators: [Validators.email] }),\n});\n\n// Signal Forms：模型即信号，字段状态可细粒度订阅\n// 详见 angular.dev/guide/forms/signals/overview"
+      },
+      { type: "demo", kind: "validate", title: "动手：先掌握校验心智" },
+      {
+        type: "quiz",
+        questions: [
+          {
+            id: "sf1",
+            question: "目前生产表单主力？",
+            options: ["Reactive Forms 仍常用", "只能 Signal Forms", "只能模板表单", "不能表单"],
+            answer: 0,
+            explain: "成熟稳定。"
+          },
+          {
+            id: "sf2",
+            question: "Signal Forms 目标？",
+            options: ["信号化模型与更少样板", "删除 TypeScript", "替代 HTTP", "只做动画"],
+            answer: 0,
+            explain: "演进方向。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    slug: "zoneless",
+    title: "Zoneless 变更检测",
+    summary: "去掉 ZoneJS 的现代路径。",
+    level: "实战",
+    track: "进阶模式",
+    minutes: 12,
+    blocks: [
+      {
+        type: "text",
+        title: "为什么 Zoneless",
+        body: "ZoneJS 通过补丁异步任务粗粒度触发变更检测，可能过度刷新。Zoneless 依赖 signals、显式通知、异步管道等精确调度，提升性能与 Core Web Vitals，减小包体。"
+      },
+      {
+        type: "code",
+        title: "对应源码 · 提供 zoneless",
+        lang: "typescript",
+        code: "bootstrapApplication(AppComponent, {\n  providers: [\n    provideZonelessChangeDetection(),\n    // ...\n  ],\n});\n\n// 组件内优先 signal / OnPush\n// 第三方非信号库需注意手动 markForCheck 或适配"
+      },
+      { type: "demo", kind: "zoneless", title: "动手：精确更新 vs 粗粒度" },
+      {
+        type: "tip",
+        body: "官网：angular.dev/guide/zoneless。新应用优先信号 + zoneless；迁移时逐步替换依赖 Zone 的模式。"
+      },
+      {
+        type: "quiz",
+        questions: [
+          {
+            id: "zn1",
+            question: "Zoneless 优势？",
+            options: ["更精确 CD / 更好性能", "必须 jQuery", "禁用 HTTP", "删除组件"],
+            answer: 0,
+            explain: "精确调度。"
+          },
+          {
+            id: "zn2",
+            question: "状态通知手段？",
+            options: ["signals 等", "只有 setInterval", "只有 CSS", "eval"],
+            answer: 0,
+            explain: "信号驱动。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    slug: "ssr-hydration",
+    title: "SSR 与 Hydration",
+    summary: "服务端渲染与增量激活。",
+    level: "实战",
+    track: "全栈实训",
+    minutes: 12,
+    blocks: [
+      {
+        type: "text",
+        title: "SSR / Hybrid",
+        body: "服务端先出 HTML 利于 SEO 与首屏；浏览器再 hydration 接上事件。Angular 支持全 SSR、客户端、以及按路由的渲染策略。Incremental Hydration 可推迟非关键块激活。"
+      },
+      {
+        type: "code",
+        title: "对应源码 · 心智",
+        lang: "typescript",
+        code: "// ng new --ssr\n// 路由级渲染模式、hydrate 配置见官网\n// 避免在构造期直接碰 window/document\n// 用 afterNextRender 做仅浏览器逻辑"
+      },
+      {
+        type: "tip",
+        body: "官网：SSR、Hydration、Incremental Hydration、Hybrid rendering。本站工坊是客户端模拟 API，部署真实 SSR 用 CLI 脚手架。"
+      },
+      {
+        type: "quiz",
+        questions: [
+          {
+            id: "sr1",
+            question: "SSR 主要收益？",
+            options: ["首屏 HTML / SEO", "更慢网络", "删除 CSS", "替代数据库"],
+            answer: 0,
+            explain: "可索引与首屏。"
+          },
+          {
+            id: "sr2",
+            question: "浏览器专用逻辑？",
+            options: ["afterNextRender 等", "constructor 直接 window", "CSS only", "index.html 脚本强制"],
+            answer: 0,
+            explain: "平台安全。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    slug: "security",
+    title: "安全最佳实践",
+    summary: "XSS、消毒与信任策略。",
+    level: "实战",
+    track: "工程化",
+    minutes: 10,
+    blocks: [
+      {
+        type: "text",
+        title: "Angular 安全模型",
+        body: "默认对绑定做消毒，降低 XSS。避免绕过安全（随便 bypassSecurityTrust*）。不要把不可信 HTML 塞进 [innerHTML]。Token 勿长期放可被脚本读的存储；配合 CSP、HTTPS、严格后端鉴权。"
+      },
+      {
+        type: "code",
+        title: "对应源码 · 危险模式（反例）",
+        lang: "typescript",
+        code: "// 反例：信任用户输入 HTML\n// this.html = this.sanitizer.bypassSecurityTrustHtml(userInput)\n\n// 正例：纯文本插值 {{ userInput }}\n// 或服务端严格白名单后再展示"
+      },
+      {
+        type: "tip",
+        body: "官网 Best practices → Security。安全是全栈问题：前端消毒 ≠ 后端可省略校验。"
+      },
+      {
+        type: "quiz",
+        questions: [
+          {
+            id: "sec1",
+            question: "默认防护？",
+            options: ["模板绑定消毒", "无防护", "仅 HTTPS 就够", "关闭 CSP"],
+            answer: 0,
+            explain: "框架默认消毒。"
+          },
+          {
+            id: "sec2",
+            question: "用户 HTML？",
+            options: ["极度谨慎 / 消毒", "直接 bypass", "eval 执行", "innerHTML 无脑"],
+            answer: 0,
+            explain: "防 XSS。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    slug: "i18n",
+    title: "国际化 i18n",
+    summary: "多语言与本地化。",
+    level: "进阶",
+    track: "工程化",
+    minutes: 10,
+    blocks: [
+      {
+        type: "text",
+        title: "i18n 概览",
+        body: "Angular 本地化方案：模板标记、提取文案、按 locale 构建。也可用运行时库（如 ngx-translate）做动态切换。日期/数字/货币用 locale 感知管道。"
+      },
+      {
+        type: "code",
+        title: "对应源码 · 模板标记思路",
+        lang: "html",
+        code: "<h1 i18n=\"@@homeHello\">你好</h1>\n<p>{{ price | currency: 'CNY' }}</p>\n<p>{{ now | date: 'medium' }}</p>"
+      },
+      {
+        type: "tip",
+        body: "官网：angular.dev/guide/i18n。产品若需运行时切语言，评估运行时 i18n 方案与打包体积。"
+      },
+      {
+        type: "quiz",
+        questions: [
+          {
+            id: "i18n1",
+            question: "模板本地化标记？",
+            options: ["i18n 属性", "v-t", "translate.js 强制", "innerText"],
+            answer: 0,
+            explain: "i18n。"
+          },
+          {
+            id: "i18n2",
+            question: "货币显示？",
+            options: ["currency 管道", "手写 $ 拼接 only", "CSS content", "alert"],
+            answer: 0,
+            explain: "locale 管道。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    slug: "animations-css",
+    title: "动画与路由过渡",
+    summary: "CSS 动画与路由转场。",
+    level: "进阶",
+    track: "进阶模式",
+    minutes: 10,
+    blocks: [
+      {
+        type: "text",
+        title: "现代动画",
+        body: "优先原生 CSS / 网页动画 API。路由过渡可用 Angular 路由动画能力。旧 @angular/animations 语法可迁移到 CSS。尊重 prefers-reduced-motion。"
+      },
+      {
+        type: "code",
+        title: "对应源码 · CSS 过渡",
+        lang: "css",
+        code: ".fade-enter {\n  opacity: 0;\n  transform: translateY(4px);\n}\n.fade-enter-active {\n  opacity: 1;\n  transform: none;\n  transition: 180ms ease;\n}\n@media (prefers-reduced-motion: reduce) {\n  * { transition: none !important; }\n}"
+      },
+      {
+        type: "quiz",
+        questions: [
+          {
+            id: "an1",
+            question: "现代优先？",
+            options: ["CSS / 原生动画", "必须 jQuery animate", "setInterval 改 top", "Flash"],
+            answer: 0,
+            explain: "CSS 优先。"
+          },
+          {
+            id: "an2",
+            question: "无障碍？",
+            options: ["prefers-reduced-motion", "忽略", "强制 3s 动画", "自动音效"],
+            answer: 0,
+            explain: "尊重系统设置。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    slug: "style-guide",
+    title: "官方风格指南精华",
+    summary: "命名、结构、inject 偏好。",
+    level: "进阶",
+    track: "工程化",
+    minutes: 10,
+    blocks: [
+      {
+        type: "text",
+        title: "一致性优先",
+        body: "文件名连字符 user-profile.ts；测试 user-profile.spec.ts；按功能目录组织；一文件一概念。依赖注入优先 inject()。组件专注展示，复杂逻辑进服务。模板避免复杂表达式。"
+      },
+      {
+        type: "code",
+        title: "对应源码 · 风格",
+        lang: "typescript",
+        code: "// 优先\nprivate readonly api = inject(ApiService);\nreadonly title = input.required<string>();\n\n// 模板成员可用 protected\nprotected onSave(): void { /* ... */ }\n\n// 类与样式绑定优先 [class]/[style]，而非 ngClass 堆叠"
+      },
+      {
+        type: "tip",
+        body: "完整指南：next.angular.dev/style-guide 与 angular.dev 文档。团队内用 ESLint + 格式化固化。"
+      },
+      {
+        type: "quiz",
+        questions: [
+          {
+            id: "sg1",
+            question: "注入偏好？",
+            options: ["inject()", "仅构造器参数永远", "全局变量", "require"],
+            answer: 0,
+            explain: "官方推荐 inject。"
+          },
+          {
+            id: "sg2",
+            question: "文件命名？",
+            options: ["kebab-case", "PascalCase 文件名强制", "无规则", "空格"],
+            answer: 0,
+            explain: "连字符。"
+          }
+        ]
+      }
+    ]
+  }
+
 ];
 
 export const TRACKS = ["基础", "进阶", "全栈准备", "全栈实训", "工程化", "进阶模式"] as const;

@@ -18,6 +18,7 @@ import {
   Code2,
   Server,
   BookMarked,
+  Library,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -31,12 +32,12 @@ export const Route = createRootRoute({
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       {
-        title: "Angular 实战学习 v1 · Signals & 全栈",
+        title: "Angular 实战学习 v2 · 对齐官网 llms.txt",
       },
       {
         name: "description",
         content:
-          "Angular 中文交互式教程：Signals、Standalone、路由守卫、HttpClient、全栈工坊与速查表。",
+          "Angular 中文交互式教程 v2：对齐 angular.dev/llms.txt，覆盖 Signals/resource/@defer/Zoneless/SSR，含文档地图与测验工坊。",
       },
     ],
     links: [
@@ -76,6 +77,7 @@ function RootDocument({ children }: { children: ReactNode }) {
 
 const NAV_EXTRA = [
   { to: "/studio" as const, label: "全栈工坊", icon: Server },
+  { to: "/docs" as const, label: "文档地图", icon: Library },
   { to: "/cheatsheet" as const, label: "速查表", icon: BookMarked },
   { to: "/playground" as const, label: "代码演练场", icon: Code2 },
   { to: "/hub" as const, label: "学习中心", icon: LayoutDashboard },
@@ -119,7 +121,7 @@ function AppShell({ children }: { children: ReactNode }) {
             <span className="truncate font-display text-sm font-semibold tracking-tight text-fg">
               Angular 实战学习
             </span>
-            <span className="hidden rounded-full bg-surface-3 px-1.5 py-0.5 font-mono text-[10px] text-primary sm:inline">v1</span>
+            <span className="hidden rounded-full bg-surface-3 px-1.5 py-0.5 font-mono text-[10px] text-primary sm:inline">v2</span>
           </Link>
 
           <nav className="ml-2 hidden items-center gap-0.5 xl:flex">
