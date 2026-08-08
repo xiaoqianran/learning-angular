@@ -4,12 +4,18 @@
 
 完整上下文（全文）：[https://xiaoqianran.github.io/learning-angular/llms-full.txt](https://xiaoqianran.github.io/learning-angular/llms-full.txt)
 
+## 官方权威（务必优先）
+
+- [angular.dev/llms.txt](https://angular.dev/llms.txt) — 官方索引
+- [angular.dev/assets/context/llms-full.txt](https://angular.dev/assets/context/llms-full.txt) — 官方全文
+- [Build with AI](https://angular.dev/ai) · [Develop with AI](https://angular.dev/ai/develop-with-ai)
+
 ## 站点入口
 
 - [首页大纲](https://xiaoqianran.github.io/learning-angular/): 搜索、路径筛选、学习进度
 - [文档地图](https://xiaoqianran.github.io/learning-angular/docs): 官方文档 ⇄ 本站课
 - [代码演练场](https://xiaoqianran.github.io/learning-angular/playground): 示例源码 + 预览
-- [全栈工坊](https://xiaoqianran.github.io/learning-angular/studio): 模拟 REST 闯关
+- [全栈工坊](https://xiaoqianran.github.io/learning-angular/studio): 全栈工坊 · REST 闯关
 - [速查表](https://xiaoqianran.github.io/learning-angular/cheatsheet): API 与 Vue→Angular 对照
 - [学习中心](https://xiaoqianran.github.io/learning-angular/hub): 打卡 / 收藏 / 错题
 - [练习场](https://xiaoqianran.github.io/learning-angular/lab): 随机测验

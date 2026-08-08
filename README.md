@@ -1,3 +1,12 @@
+# learning-angular
+
+交互式中文 **Angular** 教程站点（TanStack Start + Vite）。
+
+- 对齐 [angular.dev/llms.txt](https://angular.dev/llms.txt) / [llms-full.txt](https://angular.dev/assets/context/llms-full.txt)
+- 本站发布：[`/llms.txt`](https://xiaoqianran.github.io/learning-angular/llms.txt) · [`/llms-full.txt`](https://xiaoqianran.github.io/learning-angular/llms-full.txt)
+- UI：Catppuccin 主题 + 学/查/练/我 导航（与 learning-vue3 同构）
+- 部署：GitHub Actions → GitHub Pages（`main` 推送自动构建）
+
 # Angular 实战学习
 
 交互式中文 Angular 教程：课程 + 测验 + 进度 + 代码演练场 + 模拟全栈工坊。

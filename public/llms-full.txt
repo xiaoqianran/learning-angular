@@ -2,7 +2,7 @@
 
 > 供 LLM / IDE 一次拉取的完整课程正文。索引见 llms.txt。
 > 站点：https://xiaoqianran.github.io/learning-angular
-> 生成时间：2026-08-08T09:22:41.493Z
+> 生成时间：2026-08-08T11:08:25.106Z
 > 课程数：75
 
 ## How to use
