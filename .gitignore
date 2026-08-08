@@ -9,7 +9,7 @@ dist
 *.log
 .DS_Store
 .pglite
-data
+/data/
 .vercel
 screenshots/*.png
 artifacts
