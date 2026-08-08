@@ -1,96 +1,17 @@
-import type { Plugin } from "vite";
 import { defineConfig } from "vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { nitro } from "nitro/vite";
+import { LESSON_SLUGS } from "./src/generated/lesson-manifest";
 
 const isGitHubPages =
   process.env.GITHUB_PAGES === "true" ||
   process.env.NITRO_PRESET === "github_pages";
 
-/** Project Pages site: https://xiaoqianran.github.io/learning-angular/ */
 const base = isGitHubPages ? "/learning-angular/" : "/";
 
-const lessonSlugs = [
-  "intro",
-  "template",
-  "reactivity",
-  "computed",
-  "list-render",
-  "events",
-  "forms",
-  "components",
-  "props-emits",
-  "lifecycle",
-  "composition",
-  "router",
-  "pinia",
-  "pitfalls",
-  "project",
-  "slots",
-  "provide-inject",
-  "async-data",
-  "route-guards",
-  "form-validate",
-  "rest-api",
-  "auth-token",
-  "nuxt-map",
-  "capstone",
-  "angular-ts",
-  "api-client",
-  "testing-vue",
-  "deploy-prod",
-  "teleport",
-  "keep-alive",
-  "custom-directive",
-  "perf-patterns",
-  "interview-vue",
-  "install-cli",
-  "selectors-styling",
-  "model-inputs",
-  "template-let",
-  "defer-loading",
-  "linked-signal",
-  "resource-api",
-  "pipes",
-  "rxjs-interop",
-  "signal-forms",
-  "zoneless",
-  "ssr-hydration",
-  "security",
-  "i18n",
-  "animations-css",
-  "style-guide",
-  "structural-directives",
-  "directive-composition",
-  "image-optimization",
-  "queries",
-  "injection-context",
-  "lazy-services",
-  "lightweight-tokens",
-  "http-setup",
-  "http-requests",
-  "typed-forms",
-  "dynamic-forms",
-  "template-refs",
-  "expression-syntax",
-  "aria-a11y",
-  "route-outlets",
-  "navigate-state",
-  "url-matcher",
-  "hybrid-rendering",
-  "incremental-hydration",
-  "testing-deep",
-  "component-harness",
-  "route-animations",
-  "errors-diagnostics",
-  "update-angular",
-  "change-detection",
-  "host-bindings",
-];
-
-const lessonPaths = lessonSlugs.map((slug) => ({ path: `/lesson/${slug}` }));
+const lessonPaths = LESSON_SLUGS.map((slug) => ({ path: `/lesson/${slug}` }));
 
 const staticPages = [
   { path: "/" },
@@ -105,105 +26,6 @@ const staticPages = [
   ...lessonPaths,
 ];
 
-function pgliteBootstrapPlugin(): Plugin {
-  return {
-    name: "app-builder:pglite-bootstrap",
-    apply: "serve",
-    async configureServer(server) {
-      try {
-        const mod = (await server.ssrLoadModule("/src/lib/db.ts")) as {
-          ensureDbReady?: () => Promise<void>;
-        };
-        if (typeof mod.ensureDbReady === "function") {
-          await mod.ensureDbReady();
-        }
-      } catch (err) {
-        console.error("[app-builder] DB bootstrap failed:", err);
-        throw err;
-      }
-    },
-  };
-}
-
-function authPopupPlugin(): Plugin {
-  return {
-    name: "app-builder:auth-popup",
-    apply: "serve",
-    configureServer(server) {
-      server.middlewares.use(async (req, res, next) => {
-        try {
-          const rawUrl = req.url ?? "";
-          const pathOnly = rawUrl.split("?", 1)[0] ?? "";
-          if (pathOnly !== "/auth/popup") {
-            next();
-            return;
-          }
-          if ((req.method ?? "GET").toUpperCase() !== "GET") {
-            res.statusCode = 405;
-            res.setHeader("content-type", "text/plain; charset=utf-8");
-            res.end("Method Not Allowed");
-            return;
-          }
-
-          const host = String(
-            req.headers["x-forwarded-host"] ?? req.headers.host ?? "localhost:8080",
-          );
-          const proto = String(
-            req.headers["x-forwarded-proto"] ??
-              ((req.socket as { encrypted?: boolean } | undefined)?.encrypted
-                ? "https"
-                : "http"),
-          );
-          const requestHeaders = new Headers();
-          for (const [key, value] of Object.entries(req.headers)) {
-            if (value === undefined) continue;
-            if (Array.isArray(value)) {
-              for (const v of value) requestHeaders.append(key, v);
-            } else {
-              requestHeaders.set(key, value);
-            }
-          }
-          if (!requestHeaders.has("host")) requestHeaders.set("host", host);
-
-          const request = new Request(`${proto}://${host}${rawUrl}`, {
-            method: "GET",
-            headers: requestHeaders,
-          });
-
-          const mod = (await server.ssrLoadModule(
-            "/src/lib/auth/popup.server.ts",
-          )) as {
-            handleAuthPopupRequest: (req: Request) => Promise<Response>;
-          };
-          const response = await mod.handleAuthPopupRequest(request);
-
-          res.statusCode = response.status;
-          const setCookies =
-            typeof response.headers.getSetCookie === "function"
-              ? response.headers.getSetCookie()
-              : [];
-          response.headers.forEach((value, key) => {
-            if (key.toLowerCase() === "set-cookie") return;
-            res.setHeader(key, value);
-          });
-          for (const cookie of setCookies) {
-            res.appendHeader("set-cookie", cookie);
-          }
-          const body = Buffer.from(await response.arrayBuffer());
-          res.end(body);
-        } catch (err) {
-          console.error("[app-builder] /auth/popup handler failed:", err);
-          if (!res.headersSent) {
-            res.statusCode = 500;
-            res.setHeader("content-type", "text/plain; charset=utf-8");
-            res.end("auth popup failed");
-          }
-        }
-      });
-    },
-  };
-}
-
 export default defineConfig(({ command }) => ({
   base,
   server: {
@@ -212,15 +34,7 @@ export default defineConfig(({ command }) => ({
     strictPort: true,
   },
   resolve: { tsconfigPaths: true },
-  optimizeDeps: {
-    include: [],
-  },
-  ssr: {
-    noExternal: [],
-  },
   plugins: [
-    pgliteBootstrapPlugin(),
-    authPopupPlugin(),
     tailwindcss(),
     tanstackStart(
       isGitHubPages
