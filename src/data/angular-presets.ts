@@ -300,6 +300,207 @@ export class LoginComponent {
 `,
     },
   },
+  {
+    id: "router",
+    title: "路由",
+    summary: "Routes + routerLink + outlet",
+    mainFile: "app.routes.ts",
+    files: {
+      "app.routes.ts": `import { Routes } from '@angular/router';
+import { HomeComponent } from './home.component';
+import { LessonComponent } from './lesson.component';
+
+export const routes: Routes = [
+  { path: '', component: HomeComponent },
+  { path: 'lesson/:slug', component: LessonComponent },
+  { path: '**', redirectTo: '' },
+];
+`,
+      "home.component.ts": `import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
+
+@Component({
+  standalone: true,
+  imports: [RouterLink],
+  selector: 'app-home',
+  template: \`
+    <h1>Home</h1>
+    <a routerLink="/lesson/intro">去课程 intro</a>
+  \`,
+})
+export class HomeComponent {}
+`,
+      "lesson.component.ts": `import { Component, inject } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
+
+@Component({
+  standalone: true,
+  selector: 'app-lesson',
+  template: \`<h1>Lesson: {{ slug() }}</h1>\`,
+})
+export class LessonComponent {
+  private route = inject(ActivatedRoute);
+  slug = toSignal(this.route.paramMap.pipe(map(p => p.get('slug') ?? '')), {
+    initialValue: '',
+  });
+}
+`,
+    },
+  },
+  {
+    id: "http",
+    title: "HttpClient",
+    summary: "loading / error / data 三态",
+    mainFile: "users.service.ts",
+    files: {
+      "users.service.ts": `import { Injectable, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+
+export type User = { id: number; name: string };
+
+@Injectable({ providedIn: 'root' })
+export class UsersService {
+  private http = inject(HttpClient);
+  loading = signal(false);
+  error = signal<string | null>(null);
+  users = signal<User[]>([]);
+
+  load() {
+    this.loading.set(true);
+    this.error.set(null);
+    this.http.get<User[]>('/api/users').subscribe({
+      next: (u) => {
+        this.users.set(u);
+        this.loading.set(false);
+      },
+      error: (e: Error) => {
+        this.error.set(e.message ?? 'error');
+        this.loading.set(false);
+      },
+    });
+  }
+}
+`,
+      "users.component.ts": `import { Component, inject, OnInit } from '@angular/core';
+import { UsersService } from './users.service';
+
+@Component({
+  standalone: true,
+  selector: 'app-users',
+  template: \`
+    <button (click)="svc.load()" [disabled]="svc.loading()">刷新</button>
+    @if (svc.loading()) { <p>loading…</p> }
+    @if (svc.error(); as err) { <p class="err">{{ err }}</p> }
+    <ul>
+      @for (u of svc.users(); track u.id) {
+        <li>{{ u.name }}</li>
+      }
+    </ul>
+  \`,
+})
+export class UsersComponent implements OnInit {
+  svc = inject(UsersService);
+  ngOnInit() { this.svc.load(); }
+}
+`,
+    },
+  },
+  {
+    id: "guard",
+    title: "路由守卫",
+    summary: "CanActivateFn 鉴权跳转",
+    mainFile: "auth.guard.ts",
+    files: {
+      "auth.guard.ts": `import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { AuthService } from './auth.service';
+
+export const authGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+  if (auth.isLoggedIn()) return true;
+  return router.createUrlTree(['/login'], {
+    queryParams: { returnUrl: router.url },
+  });
+};
+`,
+      "auth.service.ts": `import { Injectable, signal } from '@angular/core';
+
+@Injectable({ providedIn: 'root' })
+export class AuthService {
+  private token = signal<string | null>(null);
+  isLoggedIn = () => !!this.token();
+  login(t: string) { this.token.set(t); }
+  logout() { this.token.set(null); }
+}
+`,
+      "app.routes.ts": `import { Routes } from '@angular/router';
+import { authGuard } from './auth.guard';
+
+export const routes: Routes = [
+  {
+    path: 'dashboard',
+    canActivate: [authGuard],
+    loadComponent: () => import('./dash').then(m => m.DashComponent),
+  },
+];
+`,
+    },
+  },
+  {
+    id: "signals-advanced",
+    title: "高级 Signals",
+    summary: "computed + effect + 不可变更新",
+    mainFile: "cart.component.ts",
+    files: {
+      "cart.component.ts": `import { Component, signal, computed, effect } from '@angular/core';
+
+type Item = { id: string; name: string; qty: number };
+
+@Component({
+  standalone: true,
+  selector: 'app-cart',
+  template: \`
+    <p>合计数量：{{ total() }}</p>
+    <button (click)="add('a', 'Angular 书')">加购</button>
+    <ul>
+      @for (it of items(); track it.id) {
+        <li>{{ it.name }} × {{ it.qty }}
+          <button (click)="inc(it.id)">+</button>
+        </li>
+      }
+    </ul>
+  \`,
+})
+export class CartComponent {
+  items = signal<Item[]>([]);
+  total = computed(() => this.items().reduce((s, i) => s + i.qty, 0));
+
+  constructor() {
+    effect(() => console.log('cart total', this.total()));
+  }
+
+  add(id: string, name: string) {
+    this.items.update(list => {
+      const found = list.find(i => i.id === id);
+      if (found) {
+        return list.map(i => i.id === id ? { ...i, qty: i.qty + 1 } : i);
+      }
+      return [...list, { id, name, qty: 1 }];
+    });
+  }
+
+  inc(id: string) {
+    this.items.update(list =>
+      list.map(i => i.id === id ? { ...i, qty: i.qty + 1 } : i),
+    );
+  }
+}
+`,
+    },
+  },
 ];
 
 export function getPreset(id: string): AngularPreset {

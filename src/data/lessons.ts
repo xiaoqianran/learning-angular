@@ -70,7 +70,10 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "counter",
         title: "动手：计数器",
-        hint: undefined
+      },
+      {
+        type: "tip",
+        body: "和 Vue 对比：Vue 是渐进式库可逐步引入；Angular 是完整平台（CLI/DI/Router/Forms 开箱）。两者都能做大型应用，团队栈决定选型。",
       },
       {
         type: "quiz",
@@ -126,7 +129,10 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "template",
         title: "动手：模板",
-        hint: undefined
+      },
+      {
+        type: "tip",
+        body: "记忆口诀：方括号绑属性 [x]，圆括号绑事件 (x)，香蕉盒双向 [(x)]。",
       },
       {
         type: "quiz",
@@ -182,7 +188,10 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "ref-vs-reactive",
         title: "动手：Signals",
-        hint: undefined
+      },
+      {
+        type: "tip",
+        body: "对象更新务必不可变：state.update(s => ({...s, n: s.n+1}))，便于 OnPush 与调试。",
       },
       {
         type: "quiz",
@@ -238,7 +247,10 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "computed",
         title: "动手：computed",
-        hint: undefined
+      },
+      {
+        type: "tip",
+        body: "effect 在构造期创建时注意：仅用于同步副作用；HTTP 请求更适合显式方法 + 订阅清理。",
       },
       {
         type: "quiz",
@@ -294,7 +306,10 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "list",
         title: "动手：列表",
-        hint: undefined
+      },
+      {
+        type: "tip",
+        body: "@for 的 track 决定 diff 身份；动画/状态挂在错误 key 上会出现「输入框串值」。",
       },
       {
         type: "quiz",
@@ -350,7 +365,6 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "events",
         title: "动手：事件",
-        hint: undefined
       },
       {
         type: "quiz",
@@ -406,7 +420,6 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "form",
         title: "动手：表单",
-        hint: undefined
       },
       {
         type: "quiz",
@@ -462,7 +475,6 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "component",
         title: "动手：组件",
-        hint: undefined
       },
       {
         type: "quiz",
@@ -518,7 +530,6 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "component",
         title: "动手：输入输出",
-        hint: undefined
       },
       {
         type: "quiz",
@@ -574,7 +585,6 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "lifecycle",
         title: "动手：生命周期",
-        hint: undefined
       },
       {
         type: "quiz",
@@ -630,7 +640,6 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "todo",
         title: "动手：Todo 小应用",
-        hint: undefined
       },
       {
         type: "quiz",
@@ -686,7 +695,10 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "router",
         title: "动手：路由",
-        hint: undefined
+      },
+      {
+        type: "tip",
+        body: "懒加载：loadComponent / loadChildren 按路由拆包，首屏更轻。",
       },
       {
         type: "quiz",
@@ -742,7 +754,10 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "pinia",
         title: "动手：全局状态",
-        hint: undefined
+      },
+      {
+        type: "tip",
+        body: "简单全局状态用 root 服务 + signal 即可；跨功能复杂工作流再考虑 NgRx。",
       },
       {
         type: "quiz",
@@ -798,7 +813,6 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "challenge",
         title: "动手：找茬挑战",
-        hint: undefined
       },
       {
         type: "quiz",
@@ -854,7 +868,6 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "todo",
         title: "动手：项目雏形 Todo",
-        hint: undefined
       },
       {
         type: "quiz",
@@ -910,7 +923,6 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "slots",
         title: "动手：内容投影",
-        hint: undefined
       },
       {
         type: "quiz",
@@ -966,7 +978,6 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "provide",
         title: "动手：DI",
-        hint: undefined
       },
       {
         type: "quiz",
@@ -1022,7 +1033,10 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "async",
         title: "动手：异步三态",
-        hint: undefined
+      },
+      {
+        type: "tip",
+        body: "把 HttpClient 逻辑放服务，组件只展示三态；方便单测与复用。",
       },
       {
         type: "quiz",
@@ -1078,7 +1092,6 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "guard",
         title: "动手：守卫",
-        hint: undefined
       },
       {
         type: "quiz",
@@ -1134,7 +1147,6 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "validate",
         title: "动手：校验",
-        hint: undefined
       },
       {
         type: "quiz",
@@ -1190,7 +1202,6 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "async",
         title: "动手：体会请求",
-        hint: undefined
       },
       {
         type: "quiz",
@@ -1246,7 +1257,10 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "guard",
         title: "动手：会话心智",
-        hint: undefined
+      },
+      {
+        type: "tip",
+        body: "Token 优先 httpOnly Cookie 防 XSS；若放 localStorage 必须配合 CSP 与严格消毒。",
       },
       {
         type: "quiz",
@@ -1302,7 +1316,6 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "challenge",
         title: "动手：架构选择",
-        hint: undefined
       },
       {
         type: "quiz",
@@ -1356,7 +1369,6 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "todo",
         title: "动手：作品核心 Todo",
-        hint: undefined
       },
       {
         type: "quiz",
@@ -1412,7 +1424,6 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "form",
         title: "动手：类型化表单感",
-        hint: undefined
       },
       {
         type: "quiz",
@@ -1468,7 +1479,6 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "async",
         title: "动手：统一请求",
-        hint: undefined
       },
       {
         type: "quiz",
@@ -1524,7 +1534,6 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "challenge",
         title: "动手：测什么",
-        hint: undefined
       },
       {
         type: "quiz",
@@ -1580,7 +1589,6 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "challenge",
         title: "动手：上线检查项",
-        hint: undefined
       },
       {
         type: "quiz",
@@ -1636,7 +1644,6 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "teleport",
         title: "动手：弹层",
-        hint: undefined
       },
       {
         type: "quiz",
@@ -1692,7 +1699,6 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "keepalive",
         title: "动手：缓存切换",
-        hint: undefined
       },
       {
         type: "quiz",
@@ -1748,7 +1754,6 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "directive",
         title: "动手：指令",
-        hint: undefined
       },
       {
         type: "quiz",
@@ -1804,7 +1809,6 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "challenge",
         title: "动手：性能清单",
-        hint: undefined
       },
       {
         type: "quiz",
@@ -1865,6 +1869,10 @@ export const LESSONS: Lesson[] = [
         body: "开口顺序：场景 → 原理一句话 → 代码点 → 坑。可配合速查表背骨架。"
       },
       {
+        type: "tip",
+        body: "面试时主动对比 Signals 与 RxJS：同步细粒度 UI 状态用 signal；多事件流组合用 Observable。zoneless + signals 是演进方向。",
+      },
+      {
         type: "code",
         title: "对应源码 · signal 口述",
         lang: "typescript",
@@ -1874,7 +1882,6 @@ export const LESSONS: Lesson[] = [
         type: "demo",
         kind: "ref-vs-reactive",
         title: "口述时配合此 Demo",
-        hint: undefined
       },
       {
         type: "quiz",
@@ -1902,6 +1909,18 @@ export const LESSONS: Lesson[] = [
             ],
             answer: 0,
             explain: "策略优化。"
+          },
+          {
+            id: "iv3",
+            question: "Zone.js 方向？",
+            options: [
+              "zoneless + signals 演进",
+              "永远强制 Zone",
+              "已删除浏览器",
+              "仅 IE"
+            ],
+            answer: 0,
+            explain: "更细粒度更新。",
           }
         ]
       }

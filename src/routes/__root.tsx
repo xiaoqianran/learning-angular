@@ -213,14 +213,8 @@ function AppShell({ children }: { children: ReactNode }) {
                       </span>
                       <span className="min-w-0 leading-snug">
                         <span className="block">{lesson.title}</span>
-                        {lesson.track === "进阶" ? (
-                          <span className="text-[10px] text-primary">进阶</span>
-                        ) : null}
-                        {lesson.track === "全栈准备" ? (
-                          <span className="text-[10px] text-muted">全栈准备</span>
-                        ) : null}
-                        {lesson.track === "全栈实训" ? (
-                          <span className="text-[10px] text-primary">全栈实训</span>
+                        {lesson.track !== "基础" ? (
+                          <span className="text-[10px] text-primary">{lesson.track}</span>
                         ) : null}
                       </span>
                     </Link>

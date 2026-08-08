@@ -22,6 +22,10 @@
 
 ---
 
+## 从 Vue 过来？
+
+速查表内置 **Vue→Angular 对照**（ref→signal、v-if→@if、Pinia→服务…）。姊妹项目：[learning-vue3](https://github.com/xiaoqianran/learning-vue3)。
+
 ## 功能一览
 
 | 模块 | 路径 | 说明 |

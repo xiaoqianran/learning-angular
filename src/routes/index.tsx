@@ -179,6 +179,79 @@ function HomePage() {
         </section>
       ) : null}
 
+      <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {[
+          {
+            t: "33 节路径课",
+            d: "基础 → 进阶 → 全栈 → 工程化 → 进阶模式，每课源码 + Demo + 测验。",
+          },
+          {
+            t: "Signals 优先",
+            d: "现代 Angular 响应式：signal / computed / effect，对照可交互面板。",
+          },
+          {
+            t: "代码演练场",
+            d: "计数器、表单、路由、HttpClient、守卫等多文件示例。",
+            to: "/playground",
+          },
+          {
+            t: "全栈工坊",
+            d: "模拟 REST：登录、401、笔记 CRUD 六关闯关。",
+            to: "/studio",
+          },
+          {
+            t: "Vue→Angular 对照",
+            d: "速查表专区：从 ref/v-if/Pinia 映射到 signal/@if/服务。",
+            to: "/cheatsheet",
+          },
+          {
+            t: "进度与结业",
+            d: "打卡、收藏、错题本；学完解锁本地结业证明。",
+            to: "/hub",
+          },
+        ].map((f) => {
+          const body = (
+            <>
+              <p className="font-display text-sm font-semibold text-fg">{f.t}</p>
+              <p className="mt-1 text-xs leading-relaxed text-muted">{f.d}</p>
+            </>
+          );
+          if (f.to === "/playground") {
+            return (
+              <Link key={f.t} to="/playground" className="rounded-xl border border-border bg-surface p-4 no-underline transition-colors hover:border-primary/40 hover:bg-surface-2">
+                {body}
+              </Link>
+            );
+          }
+          if (f.to === "/studio") {
+            return (
+              <Link key={f.t} to="/studio" className="rounded-xl border border-border bg-surface p-4 no-underline transition-colors hover:border-primary/40 hover:bg-surface-2">
+                {body}
+              </Link>
+            );
+          }
+          if (f.to === "/cheatsheet") {
+            return (
+              <Link key={f.t} to="/cheatsheet" className="rounded-xl border border-border bg-surface p-4 no-underline transition-colors hover:border-primary/40 hover:bg-surface-2">
+                {body}
+              </Link>
+            );
+          }
+          if (f.to === "/hub") {
+            return (
+              <Link key={f.t} to="/hub" className="rounded-xl border border-border bg-surface p-4 no-underline transition-colors hover:border-primary/40 hover:bg-surface-2">
+                {body}
+              </Link>
+            );
+          }
+          return (
+            <div key={f.t} className="rounded-xl border border-border bg-surface p-4">
+              {body}
+            </div>
+          );
+        })}
+      </section>
+
       <section className="mt-8">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -250,14 +323,9 @@ function HomePage() {
                       <span className="rounded-full bg-surface-3 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted">
                         {lesson.level}
                       </span>
-                      {lesson.track === "进阶" ? (
+                      {lesson.track !== "基础" ? (
                         <span className="rounded-full bg-primary-soft px-2 py-0.5 text-[10px] font-medium text-primary">
-                          进阶线
-                        </span>
-                      ) : null}
-                      {lesson.track === "全栈准备" ? (
-                        <span className="rounded-full bg-accent/30 px-2 py-0.5 text-[10px] font-medium text-fg">
-                          全栈准备
+                          {lesson.track}
                         </span>
                       ) : null}
                     </div>

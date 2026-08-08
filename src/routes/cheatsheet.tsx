@@ -7,6 +7,21 @@ export const Route = createFileRoute("/cheatsheet")({
 
 const SECTIONS: { title: string; items: { k: string; v: string }[] }[] = [
   {
+    title: "从 Vue 过来（对照）",
+    items: [
+      { k: "ref / reactive", v: "signal() · 读 count() · 写 set/update" },
+      { k: "computed / watch", v: "computed() / effect()" },
+      { k: "v-if / v-for", v: "@if / @for (track id)" },
+      { k: "v-model", v: "[(ngModel)] 或 formControlName" },
+      { k: "props / emits", v: "input() / output()" },
+      { k: "provide/inject", v: "providers + inject() / InjectionToken" },
+      { k: "Vue Router", v: "Angular Router · CanActivateFn" },
+      { k: "Pinia", v: "root 服务 + signal 或 NgRx" },
+      { k: "Teleport", v: "CDK Overlay / Dialog" },
+      { k: "KeepAlive", v: "RouteReuseStrategy" },
+    ],
+  },
+  {
     title: "Signals",
     items: [
       { k: "signal(x)", v: "可写信号；读 x()，写 set/update" },

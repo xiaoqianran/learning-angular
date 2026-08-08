@@ -313,7 +313,7 @@ function ListDemo() {
             onChange={(e) => setShow(e.target.checked)}
             className="h-4 w-4 accent-[var(--color-primary)]"
           />
-          v-if = {String(show)}
+          @if = {String(show)}
         </label>
         <div className="mt-3 flex gap-2">
           <input
@@ -330,9 +330,9 @@ function ListDemo() {
       </Panel>
       <Panel label="template 输出">
         {show ? (
-          <p className="mb-2 text-sm text-primary">v-if：列表可见</p>
+          <p className="mb-2 text-sm text-primary">@if：列表可见</p>
         ) : (
-          <p className="mb-2 text-sm text-muted">v-else：已隐藏</p>
+          <p className="mb-2 text-sm text-muted">@else：已隐藏</p>
         )}
         {show ? (
           <ul className="space-y-1.5">
@@ -370,9 +370,9 @@ function EventsDemo() {
       <Panel label="事件">
         <p className="font-mono text-3xl font-semibold tabular-nums text-primary">{n}</p>
         <div className="mt-3 flex flex-wrap gap-2">
-          <Button onClick={() => setN((x) => x + 1)}>@click +1</Button>
+          <Button onClick={() => setN((x) => x + 1)}>(click) +1</Button>
           <Button variant="secondary" onClick={() => setN((x) => x + 5)}>
-            @click="add(5)"
+            (click)="add(5)"
           </Button>
           <Button
             variant="outline"
@@ -383,7 +383,7 @@ function EventsDemo() {
               );
             }}
           >
-            @submit.prevent
+            (submit) $event.preventDefault()
           </Button>
         </div>
       </Panel>
@@ -409,7 +409,7 @@ function FormDemo() {
   const [color, setColor] = useState("green");
   return (
     <div className="grid gap-3 sm:grid-cols-2">
-      <Panel label="v-model 表单">
+      <Panel label="[(ngModel)] 表单">
         <label className="text-xs text-muted">name (.trim)</label>
         <input
           value={name}
@@ -500,12 +500,12 @@ function LifecycleDemo() {
 
   useEffect(() => {
     if (!mounted) return;
-    setLog((xs) => [...xs, "onMounted → 启动计时器"].slice(-6));
+    setLog((xs) => [...xs, "ngOnInit → 启动计时器"].slice(-6));
     setTicks(0);
     const id = window.setInterval(() => setTicks((t) => t + 1), 1000);
     return () => {
       clearInterval(id);
-      setLog((xs) => [...xs, "onUnmounted → clearInterval"].slice(-6));
+      setLog((xs) => [...xs, "ngOnDestroy → clearInterval"].slice(-6));
     };
   }, [mounted]);
 
@@ -627,7 +627,7 @@ function TodoDemo() {
 
 function RouterDemo() {
   const pages = [
-    { path: "/", title: "Home", body: "欢迎页 · RouterView 渲染 Home" },
+    { path: "/", title: "Home", body: "欢迎页 · router-outlet 渲染 Home" },
     {
       path: "/lesson/intro",
       title: "Lesson",
@@ -640,7 +640,7 @@ function RouterDemo() {
 
   return (
     <div className="grid gap-3 sm:grid-cols-[11rem_1fr]">
-      <Panel label="RouterLink">
+      <Panel label="routerLink">
         <nav className="flex flex-col gap-1">
           {pages.map((p) => (
             <button
@@ -659,7 +659,7 @@ function RouterDemo() {
           ))}
         </nav>
       </Panel>
-      <Panel label="RouterView">
+      <Panel label="router-outlet">
         <p className="font-mono text-xs text-subtle">route.path = {path}</p>
         <h4 className="mt-2 font-display text-lg font-semibold text-fg">{current.title}</h4>
         <p className="mt-1 text-sm text-muted">{current.body}</p>
@@ -669,7 +669,7 @@ function RouterDemo() {
 }
 
 function PiniaDemo() {
-  const [items, setItems] = useState<string[]>(["学 Pinia"]);
+  const [items, setItems] = useState<string[]>(["学 Signal Store"]);
   const [draft, setDraft] = useState("");
   const count = items.length;
 
@@ -682,7 +682,7 @@ function PiniaDemo() {
 
   return (
     <div className="grid gap-3 sm:grid-cols-2">
-      <Panel label="组件 A · useCartStore()">
+      <Panel label="组件 A · inject(CartStore)">
         <p className="text-sm text-muted">
           count: <span className="font-mono text-primary tabular-nums">{count}</span>
         </p>
@@ -699,7 +699,7 @@ function PiniaDemo() {
           </Button>
         </div>
       </Panel>
-      <Panel label="组件 B · 同一 store">
+      <Panel label="组件 B · 同一 CartStore">
         <ul className="space-y-1 text-sm">
           {items.map((it, i) => (
             <li key={i} className="rounded-md bg-bg px-2 py-1.5">
@@ -716,11 +716,16 @@ function PiniaDemo() {
 }
 
 function ChallengeDemo() {
-  const [code, setCode] = useState(`let count = 0\nfunction inc() { count++ }\n// 视图不更新？`);
+  const [code, setCode] = useState(
+    `let count = 0\nfunction inc() { count++ }\n// 视图不更新？`,
+  );
   const [status, setStatus] = useState<"idle" | "pass" | "fail">("idle");
 
   function check() {
-    const ok = /ref\s*\(/.test(code) && /\.value/.test(code) && !/let count = 0/.test(code);
+    const ok =
+      /signal\s*\(/.test(code) &&
+      (/\.update\s*\(/.test(code) || /\.set\s*\(/.test(code)) &&
+      !/let count = 0/.test(code);
     setStatus(ok ? "pass" : "fail");
   }
 
@@ -745,7 +750,7 @@ function ChallengeDemo() {
             variant="secondary"
             onClick={() => {
               setCode(
-                `import { ref } from 'vue'\ncount = signal(0)\nfunction inc() { count.update(c => c + 1) }`,
+                `import { signal } from '@angular/core'\ncount = signal(0)\nfunction inc() { count.update(c => c + 1) }`,
               );
               setStatus("idle");
             }}
@@ -754,10 +759,12 @@ function ChallengeDemo() {
           </Button>
         </div>
         {status === "pass" ? (
-          <p className="mt-2 text-sm text-primary">通过：响应式写法正确</p>
+          <p className="mt-2 text-sm text-primary">通过：使用 signal + set/update</p>
         ) : null}
         {status === "fail" ? (
-          <p className="mt-2 text-sm text-warn">未通过：需要 ref(...) 且使用 .value 更新</p>
+          <p className="mt-2 text-sm text-warn">
+            未通过：需要 signal(...) 且用 set/update 更新（普通 let 不会触发视图）
+          </p>
         ) : null}
       </Panel>
     </div>
@@ -779,7 +786,7 @@ function SlotsDemo() {
             onChange={(e) => setCustomHeader(e.target.checked)}
             className="h-4 w-4 accent-[var(--color-primary)]"
           />
-          使用 #header
+          投影 [card-title]
         </label>
         <label className="mt-2 flex items-center gap-2 text-sm">
           <input
@@ -788,7 +795,7 @@ function SlotsDemo() {
             onChange={(e) => setCustomFooter(e.target.checked)}
             className="h-4 w-4 accent-[var(--color-primary)]"
           />
-          使用 #footer=&#123; year &#125;
+          默认投影主体 + footer
         </label>
       </Panel>
       <Panel label="Card 渲染结果">
@@ -796,9 +803,9 @@ function SlotsDemo() {
           <header className="border-b border-border pb-2 text-sm font-medium text-primary">
             {customHeader ? "自定义头 · 来自父级" : "默认 title prop"}
           </header>
-          <div className="py-3 text-sm text-fg">默认插槽：卡片主体内容</div>
+          <div className="py-3 text-sm text-fg">默认 ng-content：卡片主体</div>
           <footer className="border-t border-border pt-2 text-xs text-muted">
-            {customFooter ? "© 2026 · 作用域插槽 year" : "默认页脚"}
+            {customFooter ? "© 2026 · 父级投影页脚" : "默认页脚"}
           </footer>
         </div>
       </Panel>
@@ -810,7 +817,7 @@ function ProvideDemo() {
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   return (
     <div className="grid gap-3">
-      <Panel label="祖先 provide(themeKey, theme)">
+      <Panel label="祖先 providers: [{ provide: THEME, useValue }]">
         <div className="flex flex-wrap gap-2">
           <Button
             size="sm"
@@ -834,7 +841,7 @@ function ProvideDemo() {
           theme === "dark" ? "border-border bg-bg text-fg" : "border-border-strong bg-fg text-bg",
         )}
       >
-        <p className="text-xs opacity-70">深层子组件 inject(themeKey)</p>
+        <p className="text-xs opacity-70">深层子组件 inject(THEME)</p>
         <p className="mt-1 text-sm font-medium">当前主题：{theme}（无需 props 逐层传递）</p>
       </div>
     </div>
@@ -854,7 +861,7 @@ function AsyncDemo() {
         return;
       }
       setItems([
-        { id: 1, title: "学 async composable" },
+        { id: 1, title: "学 HttpClient 服务" },
         { id: 2, title: "处理 loading / error" },
         { id: 3, title: "准备接真实 API" },
       ]);
@@ -908,7 +915,7 @@ function GuardDemo() {
   function go(target: "home" | "dash" | "login") {
     if (target === "dash" && !token) {
       setPage("login");
-      setMsg("beforeEach：requiresAuth 且未登录 → /login?redirect=/dashboard");
+      setMsg("CanActivateFn：未登录 → createUrlTree(['/login'])");
       return;
     }
     if (target === "login" && token) {
@@ -1036,7 +1043,7 @@ function TeleportDemo() {
     <div>
       <Button onClick={() => setOpen(true)}>打开弹层</Button>
       <p className="mt-2 text-xs text-muted">
-        模拟 Teleport to body：遮罩盖住整页，不受父级 overflow 限制。
+        模拟 CDK Overlay / Dialog：弹层挂 body，不受父级 overflow 裁剪。
       </p>
       {open ? (
         <div
@@ -1084,7 +1091,7 @@ function KeepAliveDemo() {
           Tab B
         </Button>
       </div>
-      <p className="mt-2 text-xs text-muted">模拟 KeepAlive：切换 tab 保留输入。</p>
+      <p className="mt-2 text-xs text-muted">模拟 RouteReuseStrategy：切换 tab 保留输入状态。</p>
       <div className="mt-3 rounded-lg border border-border bg-surface-2 p-3">
         {tab === "a" ? (
           <label className="block text-sm">
@@ -1131,7 +1138,7 @@ function DirectiveDemo() {
           卸载
         </Button>
       </div>
-      <p className="mt-2 text-xs text-muted">模拟 v-focus：mounted 时 el.focus()</p>
+      <p className="mt-2 text-xs text-muted">模拟指令 appFocus：ngOnInit 时 el.focus()</p>
       {show ? (
         <input
           key={key}

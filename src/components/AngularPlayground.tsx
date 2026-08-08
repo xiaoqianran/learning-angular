@@ -65,6 +65,14 @@ function LivePreview({ presetId }: { presetId: string }) {
       return <DiLive />;
     case "forms":
       return <FormsLive />;
+    case "router":
+      return <RouterLive />;
+    case "http":
+      return <HttpLive />;
+    case "guard":
+      return <GuardLive />;
+    case "signals-advanced":
+      return <CartLive />;
     default:
       return (
         <p className="text-sm text-muted">选择一个预设查看交互预览。</p>
@@ -324,3 +332,142 @@ function FormsLive() {
     </form>
   );
 }
+
+
+function RouterLive() {
+  const pages = [
+    { path: "/", title: "Home" },
+    { path: "/lesson/intro", title: "Lesson intro" },
+  ] as const;
+  const [path, setPath] = useState<(typeof pages)[number]["path"]>("/");
+  const cur = pages.find((p) => p.path === path) ?? pages[0];
+  return (
+    <div className="rounded-lg border border-border bg-surface-2 p-4">
+      <div className="flex flex-wrap gap-2">
+        {pages.map((p) => (
+          <button
+            key={p.path}
+            type="button"
+            onClick={() => setPath(p.path)}
+            className={
+              path === p.path
+                ? "rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-fg"
+                : "rounded-md border border-border px-3 py-1.5 text-sm"
+            }
+          >
+            {p.path}
+          </button>
+        ))}
+      </div>
+      <p className="mt-3 font-mono text-xs text-subtle">router-outlet →</p>
+      <p className="mt-1 font-display text-lg font-semibold text-primary">{cur.title}</p>
+    </div>
+  );
+}
+
+function HttpLive() {
+  const [status, setStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
+  const [users, setUsers] = useState<{ id: number; name: string }[]>([]);
+  function load(ok: boolean) {
+    setStatus("loading");
+    setUsers([]);
+    window.setTimeout(() => {
+      if (!ok) {
+        setStatus("error");
+        return;
+      }
+      setUsers([
+        { id: 1, name: "Ada" },
+        { id: 2, name: "Grace" },
+      ]);
+      setStatus("ok");
+    }, 600);
+  }
+  return (
+    <div className="rounded-lg border border-border bg-surface-2 p-4">
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => load(true)}
+          className="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-fg"
+        >
+          成功请求
+        </button>
+        <button
+          type="button"
+          onClick={() => load(false)}
+          className="rounded-md border border-border px-3 py-1.5 text-sm"
+        >
+          失败请求
+        </button>
+      </div>
+      <p className="mt-2 font-mono text-xs text-muted">status = {status}</p>
+      {status === "loading" ? <p className="mt-2 text-sm text-primary">loading…</p> : null}
+      {status === "error" ? <p className="mt-2 text-sm text-danger">error</p> : null}
+      {status === "ok" ? (
+        <ul className="mt-2 space-y-1 text-sm">
+          {users.map((u) => (
+            <li key={u.id}>· {u.name}</li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
+  );
+}
+
+function GuardLive() {
+  const [token, setToken] = useState<string | null>(null);
+  const [page, setPage] = useState("home");
+  const [msg, setMsg] = useState("公开首页");
+  function goDash() {
+    if (!token) {
+      setPage("login");
+      setMsg("authGuard 拦截 → /login");
+      return;
+    }
+    setPage("dash");
+    setMsg("进入 dashboard");
+  }
+  return (
+    <div className="rounded-lg border border-border bg-surface-2 p-4">
+      <div className="flex flex-wrap gap-2">
+        <button type="button" className="rounded-md border border-border px-3 py-1.5 text-sm" onClick={() => { setPage("home"); setMsg("公开首页"); }}>/</button>
+        <button type="button" className="rounded-md border border-border px-3 py-1.5 text-sm" onClick={goDash}>/dashboard</button>
+        <button type="button" className="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-fg" onClick={() => setToken("tok")}>登录</button>
+        <button type="button" className="rounded-md border border-border px-3 py-1.5 text-sm" onClick={() => { setToken(null); setPage("home"); setMsg("已退出"); }}>退出</button>
+      </div>
+      <p className="mt-3 font-mono text-xs text-muted">token: {token ? "present" : "null"} · page: {page}</p>
+      <p className="mt-1 text-sm text-fg">{msg}</p>
+    </div>
+  );
+}
+
+function CartLive() {
+  const [items, setItems] = useState<{ id: string; name: string; qty: number }[]>([]);
+  const total = items.reduce((s, i) => s + i.qty, 0);
+  function add() {
+    setItems((list) => {
+      const found = list.find((i) => i.id === "a");
+      if (found) return list.map((i) => (i.id === "a" ? { ...i, qty: i.qty + 1 } : i));
+      return [...list, { id: "a", name: "Angular 书", qty: 1 }];
+    });
+  }
+  return (
+    <div className="rounded-lg border border-border bg-surface-2 p-4">
+      <p className="text-sm text-muted">
+        合计 <span className="font-mono text-primary">{total}</span>
+      </p>
+      <button type="button" onClick={add} className="mt-2 rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-fg">
+        加购
+      </button>
+      <ul className="mt-3 space-y-1 text-sm">
+        {items.map((i) => (
+          <li key={i.id}>
+            {i.name} × {i.qty}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
