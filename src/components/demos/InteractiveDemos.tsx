@@ -129,6 +129,24 @@ function DemoBody({ kind }: { kind: DemoKind }) {
       return <ZonelessDemo />;
     case "style-encap":
       return <StyleEncapDemo />;
+    case "structural":
+      return <StructuralDemo />;
+    case "host-dir":
+      return <HostDirDemo />;
+    case "image-opt":
+      return <ImageOptDemo />;
+    case "query":
+      return <QueryDemo />;
+    case "typed-form":
+      return <TypedFormDemo />;
+    case "dynamic-form":
+      return <DynamicFormDemo />;
+    case "outlet":
+      return <OutletDemo />;
+    case "harness":
+      return <HarnessDemo />;
+    case "diagnostics":
+      return <DiagnosticsDemo />;
     default:
       return null;
   }
@@ -1335,6 +1353,247 @@ function StyleEncapDemo() {
           样式可能泄漏到全应用
         </div>
         <p className="mt-2 text-xs text-muted">第三方主题才考虑，慎用</p>
+      </Panel>
+    </div>
+  );
+}
+
+
+function StructuralDemo() {
+  const [hidden, setHidden] = useState(false);
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      <Panel label="*appUnless">
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={hidden} onChange={(e) => setHidden(e.target.checked)} className="h-4 w-4 accent-[var(--color-primary)]" />
+          hidden = {String(hidden)}
+        </label>
+      </Panel>
+      <Panel label="DOM">
+        {!hidden ? (
+          <p className="rounded-md bg-primary-soft px-3 py-2 text-sm text-primary">段落在 DOM 中</p>
+        ) : (
+          <p className="text-sm text-muted">已 clear() · 无节点</p>
+        )}
+      </Panel>
+    </div>
+  );
+}
+
+function HostDirDemo() {
+  const [tip, setTip] = useState("保存到云端");
+  const [show, setShow] = useState(false);
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      <Panel label="hostDirectives 输入">
+        <input value={tip} onChange={(e) => setTip(e.target.value)} className="h-10 w-full rounded-md border border-border bg-bg px-3 text-sm" />
+      </Panel>
+      <Panel label="组合后的按钮">
+        <button
+          type="button"
+          className="relative rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-fg"
+          onMouseEnter={() => setShow(true)}
+          onMouseLeave={() => setShow(false)}
+        >
+          帮助
+          {show ? (
+            <span className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-surface-3 px-2 py-1 text-[11px] text-fg">
+              {tip}
+            </span>
+          ) : null}
+        </button>
+      </Panel>
+    </div>
+  );
+}
+
+function ImageOptDemo() {
+  const [priority, setPriority] = useState(true);
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      <Panel label="配置">
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={priority} onChange={(e) => setPriority(e.target.checked)} className="h-4 w-4 accent-[var(--color-primary)]" />
+          priority（LCP）
+        </label>
+      </Panel>
+      <Panel label="ngSrc 结果">
+        <div className="flex h-24 items-center justify-center rounded-md border border-dashed border-border bg-bg text-xs text-muted">
+          {priority ? "高优先级 · 预加载" : "懒加载 · 进入视口再请求"}
+        </div>
+      </Panel>
+    </div>
+  );
+}
+
+function QueryDemo() {
+  const [focused, setFocused] = useState(false);
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      <Panel label="模板 #box">
+        <input
+          id="q-box"
+          className="h-10 w-full rounded-md border border-border bg-bg px-3 text-sm"
+          placeholder="viewChild 目标"
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+        />
+      </Panel>
+      <Panel label="类中 focus()">
+        <Button
+          size="sm"
+          onClick={() => {
+            document.getElementById("q-box")?.focus();
+          }}
+        >
+          box().nativeElement.focus()
+        </Button>
+        <p className="mt-2 text-xs text-muted">focused: {String(focused)}</p>
+      </Panel>
+    </div>
+  );
+}
+
+function TypedFormDemo() {
+  const [email, setEmail] = useState("");
+  const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  return (
+    <div className="rounded-lg border border-border bg-surface-2 p-4">
+      <p className="mb-2 font-mono text-[11px] text-subtle">{"FormControl<string>"}</p>
+      <input
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        className="h-10 w-full max-w-sm rounded-md border border-border bg-bg px-3 text-sm"
+        placeholder="email"
+      />
+      <p className="mt-2 text-sm">
+        value 类型推断为 string · valid:{" "}
+        <span className={valid ? "text-primary" : "text-danger"}>{String(valid)}</span>
+      </p>
+    </div>
+  );
+}
+
+function DynamicFormDemo() {
+  const [fields, setFields] = useState([
+    { key: "name", label: "姓名" },
+    { key: "role", label: "角色" },
+  ]);
+  const [values, setValues] = useState<Record<string, string>>({ name: "", role: "" });
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      <Panel label="字段配置">
+        <Button
+          size="sm"
+          onClick={() => {
+            const key = `f${fields.length + 1}`;
+            setFields((xs) => [...xs, { key, label: `字段${fields.length + 1}` }]);
+            setValues((v) => ({ ...v, [key]: "" }));
+          }}
+        >
+          添加字段
+        </Button>
+        <ul className="mt-2 space-y-1 text-xs text-muted">
+          {fields.map((f) => (
+            <li key={f.key}>{f.key}</li>
+          ))}
+        </ul>
+      </Panel>
+      <Panel label="运行时 FormGroup">
+        {fields.map((f) => (
+          <label key={f.key} className="mb-2 block text-xs text-muted">
+            {f.label}
+            <input
+              value={values[f.key] ?? ""}
+              onChange={(e) => setValues((v) => ({ ...v, [f.key]: e.target.value }))}
+              className="mt-1 h-9 w-full rounded-md border border-border bg-bg px-2 text-sm text-fg"
+            />
+          </label>
+        ))}
+      </Panel>
+    </div>
+  );
+}
+
+function OutletDemo() {
+  const [modal, setModal] = useState(false);
+  return (
+    <div className="relative min-h-[140px] rounded-lg border border-border bg-surface-2 p-4">
+      <p className="text-xs text-muted">primary outlet</p>
+      <p className="mt-1 font-medium text-fg">主页面内容</p>
+      <Button size="sm" className="mt-3" onClick={() => setModal(true)}>
+        打开 modal outlet
+      </Button>
+      {modal ? (
+        <div className="absolute inset-3 flex items-center justify-center rounded-md border border-primary/40 bg-bg/95">
+          <div className="text-center">
+            <p className="text-xs text-primary">outlet: modal</p>
+            <p className="mt-1 text-sm">Compose 面板</p>
+            <Button size="sm" className="mt-2" variant="secondary" onClick={() => setModal(false)}>
+              关闭
+            </Button>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function HarnessDemo() {
+  const [log, setLog] = useState<string[]>([]);
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      <Panel label="组件内部 DOM（可改）">
+        <button
+          type="button"
+          data-testid="save"
+          className="rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-fg"
+          onClick={() => setLog((xs) => [`click @ ${new Date().toLocaleTimeString()}`, ...xs].slice(0, 4))}
+        >
+          保存
+        </button>
+      </Panel>
+      <Panel label="Harness API">
+        <Button
+          size="sm"
+          onClick={() => {
+            document.querySelector<HTMLButtonElement>('[data-testid="save"]')?.click();
+          }}
+        >
+          await btn.click()
+        </Button>
+        <ul className="mt-2 space-y-1 font-mono text-xs text-muted">
+          {log.map((l, i) => (
+            <li key={i}>{l}</li>
+          ))}
+        </ul>
+      </Panel>
+    </div>
+  );
+}
+
+function DiagnosticsDemo() {
+  const [code, setCode] = useState("NG0100");
+  const map: Record<string, string> = {
+    NG0100: "ExpressionChangedAfterItHasBeenCheckedError · 检查期又改了值",
+    NG0200: "循环依赖 · 检查 providers 图",
+    NG0300: "选择器冲突/未知元素 · 检查 imports",
+    NG9: "未知错误码 · 打开 angular.dev/errors",
+  };
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      <Panel label="错误码">
+        <div className="flex flex-wrap gap-2">
+          {Object.keys(map).map((k) => (
+            <Button key={k} size="sm" variant={code === k ? "default" : "secondary"} onClick={() => setCode(k)}>
+              {k}
+            </Button>
+          ))}
+        </div>
+      </Panel>
+      <Panel label="百科解释">
+        <p className="text-sm text-fg">{map[code]}</p>
+        <p className="mt-2 text-xs text-muted">生产环境请查官方 Error encyclopedia</p>
       </Panel>
     </div>
   );

@@ -1,28 +1,95 @@
 # learning-angular
 
-交互式中文 Angular 学习站（课程 + Demo + 测验 + 工坊）。姊妹项目 learning-vue3。
-
-> 权威 API 与完整规范以官方为准：https://angular.dev/llms.txt
+交互式中文 Angular 学习站（75 课 + Demo + 测验 + 工坊）。
+对齐官方 https://angular.dev/llms.txt 主路径；权威 API 以官网为准。
 
 ## Site
 
-- [首页课程大纲](/learning-angular/)
-- [文档地图（对照官网）](/learning-angular/docs)
-- [代码演练场](/learning-angular/playground)
+- [首页](/learning-angular/)
+- [文档地图](/learning-angular/docs)
+- [演练场](/learning-angular/playground)
 - [全栈工坊](/learning-angular/studio)
 - [速查表](/learning-angular/cheatsheet)
-- [学习中心](/learning-angular/hub)
 
-## Curriculum tracks
+## Lessons (75)
 
-- 基础：intro, install-cli, template, reactivity, computed, list-render, events, forms, components, props-emits, lifecycle, composition, pipes, selectors-styling
-- 进阶：router, pinia, pitfalls, project, model-inputs, template-let, rxjs-interop
-- 全栈准备：slots, provide-inject, async-data, route-guards, form-validate
-- 全栈实训：rest-api, auth-token, nuxt-map, capstone, ssr-hydration
-- 工程化：angular-ts, api-client, testing-vue, deploy-prod, security, i18n, style-guide
-- 进阶模式：teleport, keep-alive, custom-directive, perf-patterns, interview-vue, defer-loading, linked-signal, resource-api, signal-forms, zoneless, animations-css
+- intro
+- template
+- reactivity
+- computed
+- list-render
+- events
+- forms
+- components
+- props-emits
+- lifecycle
+- composition
+- router
+- pinia
+- pitfalls
+- project
+- slots
+- provide-inject
+- async-data
+- route-guards
+- form-validate
+- rest-api
+- auth-token
+- nuxt-map
+- capstone
+- angular-ts
+- api-client
+- testing-vue
+- deploy-prod
+- teleport
+- keep-alive
+- custom-directive
+- perf-patterns
+- interview-vue
+- install-cli
+- selectors-styling
+- model-inputs
+- template-let
+- defer-loading
+- linked-signal
+- resource-api
+- pipes
+- rxjs-interop
+- signal-forms
+- zoneless
+- ssr-hydration
+- security
+- i18n
+- animations-css
+- style-guide
+- structural-directives
+- directive-composition
+- image-optimization
+- queries
+- injection-context
+- lazy-services
+- lightweight-tokens
+- http-setup
+- http-requests
+- typed-forms
+- dynamic-forms
+- template-refs
+- expression-syntax
+- aria-a11y
+- route-outlets
+- navigate-state
+- url-matcher
+- hybrid-rendering
+- incremental-hydration
+- testing-deep
+- component-harness
+- route-animations
+- errors-diagnostics
+- update-angular
+- change-detection
+- host-bindings
 
-## Official Angular LLM context
+## Official
 
 - https://angular.dev/llms.txt
 - https://angular.dev/assets/context/llms-full.txt

@@ -149,6 +149,17 @@ const SOURCES: Record<DemoKind, DemoSource> = {
     "code": "@Component({\n  encapsulation: ViewEncapsulation.Emulated,\n  styles: [`:host { display:block } .x { color: red }`],\n})"
   }
 
+,
+  "structural": { "title": "结构指令", "lang": "typescript", "code": "*appUnless=\"hidden\" · ViewContainerRef create/clear" },
+  "host-dir": { "title": "hostDirectives", "lang": "typescript", "code": "hostDirectives: [{ directive: TooltipDirective, inputs: ['text: tooltip'] }]" },
+  "image-opt": { "title": "NgOptimizedImage", "lang": "html", "code": "<img ngSrc=\"/a.png\" width=\"800\" height=\"400\" priority />" },
+  "query": { "title": "viewChild", "lang": "typescript", "code": "box = viewChild.required<ElementRef>('box');\nthis.box().nativeElement.focus();" },
+  "typed-form": { "title": "Typed forms", "lang": "typescript", "code": "fb.group({ email: fb.control('') }) // NonNullableFormBuilder" },
+  "dynamic-form": { "title": "Dynamic forms", "lang": "typescript", "code": "for (const f of fields) group[f.key] = new FormControl('')" },
+  "outlet": { "title": "router-outlet", "lang": "html", "code": "<router-outlet />\n<router-outlet name=\"modal\" />" },
+  "harness": { "title": "Component Harness", "lang": "typescript", "code": "const btn = await loader.getHarness(MatButtonHarness.with({ text: '保存' }));\nawait btn.click();" },
+  "diagnostics": { "title": "NG errors", "lang": "text", "code": "查 angular.dev/errors · 启用 strictTemplates / extended diagnostics" }
+
 };
 
 export function getDemoSource(kind: DemoKind): DemoSource {
